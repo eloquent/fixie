@@ -1,4 +1,3 @@
-fixie
-=====
+# Fixie
 
-YAML-based data fixtures.
+*YAML-based data fixtures.*
