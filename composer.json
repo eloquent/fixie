@@ -13,9 +13,11 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "symfony/yaml": "*"
+        "icecave/isolator": "~2",
+        "symfony/yaml": "~2"
     },
     "require-dev": {
+        "eloquent/liberator": "~1",
         "icecave/testing": "~1"
     },
     "autoload": {
