@@ -11,7 +11,9 @@
 
 namespace Eloquent\Fixie\Reader;
 
-interface HandleInterface
+use Iterator;
+
+interface HandleInterface extends Iterator
 {
     /**
      * @return string|null
@@ -33,5 +35,5 @@ interface HandleInterface
      */
     public function fetchAll();
 
-    public function rewind();
+    public function rewindHandle();
 }

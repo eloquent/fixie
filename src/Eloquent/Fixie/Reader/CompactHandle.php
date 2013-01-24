@@ -39,7 +39,7 @@ class CompactHandle extends AbstractHandle
         }
 
         $this->expectedKeys = range(0, count($this->columnNames) - 1);
-        $this->rewind();
+        $this->rewindHandle();
     }
 
     /**

@@ -81,7 +81,7 @@ abstract class AbstractHandle implements HandleInterface
      */
     public function fetchAll()
     {
-        $this->rewind();
+        $this->rewindHandle();
 
         $rows = array();
         while (null !== ($row = $this->fetch())) {
@@ -96,17 +96,17 @@ abstract class AbstractHandle implements HandleInterface
      */
     public function fetch()
     {
-        $row = $this->fetchRow(true);
-        if (null === $row) {
+        $this->currentRow = $this->fetchRow(true);
+        if (null === $this->currentRow) {
             $this->position = null;
         } else {
             $this->position ++;
         }
 
-        return $row;
+        return $this->currentRow;
     }
 
-    public function rewind()
+    public function rewindHandle()
     {
         $this->rewindStream();
         for ($i = 0; $i < $this->startLine; $i ++) {
@@ -114,6 +114,41 @@ abstract class AbstractHandle implements HandleInterface
         }
 
         $this->position = 0;
+    }
+
+    public function rewind()
+    {
+        $this->rewindHandle();
+        $this->fetch();
+    }
+
+    /**
+     * @return array|null
+     */
+    public function current()
+    {
+        return $this->currentRow;
+    }
+
+    /**
+     * @return integer|null
+     */
+    public function key()
+    {
+        return $this->position() - 1;
+    }
+
+    public function next()
+    {
+        $this->fetch();
+    }
+
+    /**
+     * @return boolean
+     */
+    public function valid()
+    {
+        return null !== $this->position();
     }
 
     protected function rewindStream()
@@ -214,6 +249,7 @@ abstract class AbstractHandle implements HandleInterface
     private $stream;
     private $path;
     private $parser;
+    private $currentRow;
     protected $position;
     protected $isolator;
     protected $columnNames;

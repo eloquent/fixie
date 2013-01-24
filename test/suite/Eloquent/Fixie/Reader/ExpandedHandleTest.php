@@ -153,7 +153,7 @@ EOD;
         $this->assertNull($this->_handle->position());
         $this->assertNull($this->_handle->fetch());
         $this->assertNull($this->_handle->position());
-        $this->_handle->rewind();
+        $this->_handle->rewindHandle();
         foreach ($expected as $index => $expectedRow) {
             $this->assertSame($index, $this->_handle->position());
             $this->assertSame($expectedRow, $this->_handle->fetch());
@@ -163,6 +163,7 @@ EOD;
         $this->assertNull($this->_handle->fetch());
         $this->assertNull($this->_handle->position());
         $this->assertSame($expected, $this->_handle->fetchAll());
+        $this->assertSame($expected, iterator_to_array($this->_handle));
     }
 
     public function fetchFailureData()

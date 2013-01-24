@@ -30,7 +30,7 @@ class ExpandedHandle extends AbstractHandle
             throw new Exception\ReadException($this->path());
         }
 
-        $this->rewind();
+        $this->rewindHandle();
     }
 
     /**
