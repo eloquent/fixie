@@ -1,4 +1,4 @@
-<?php
+<?php // @codeCoverageIgnoreStart
 
 /*
  * This file is part of the Fixie package.
@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Fixie\Reader;
+namespace Eloquent\Fixie\Writer;
 
-interface FixtureReaderInterface
+interface FixtureWriterInterface
 {
     /**
      * @param string $path
      *
-     * @return ReadHandleInterface
+     * @return WriteHandleInterface
      */
     public function openFile($path);
 
     /**
      * @param stream{readable: true} $stream
      *
-     * @return ReadHandleInterface
+     * @return WriteHandleInterface
      */
     public function openStream($stream);
 }

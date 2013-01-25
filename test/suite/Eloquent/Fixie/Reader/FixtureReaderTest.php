@@ -11,7 +11,6 @@
 
 namespace Eloquent\Fixie\Reader;
 
-use Phake;
 use PHPUnit_Framework_TestCase;
 
 class FixtureReaderTest extends PHPUnit_Framework_TestCase
@@ -45,24 +44,24 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
         return $stream;
     }
 
-    public function testReadFile()
+    public function testOpenFile()
     {
-        $expected = new Handle(
+        $expected = new ReadHandle(
             null,
             'foo'
         );
 
-        $this->assertEquals($expected, $this->_reader->readFile('foo'));
+        $this->assertEquals($expected, $this->_reader->openFile('foo'));
     }
 
-    public function testReadStream()
+    public function testOpenStream()
     {
         $stream = $this->streamFixture();
-        $expected = new Handle(
+        $expected = new ReadHandle(
             $stream,
             'foo'
         );
 
-        $this->assertEquals($expected, $this->_reader->readStream($stream, 'foo'));
+        $this->assertEquals($expected, $this->_reader->openStream($stream, 'foo'));
     }
 }

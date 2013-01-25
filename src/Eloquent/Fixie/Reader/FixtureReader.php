@@ -16,11 +16,11 @@ class FixtureReader implements FixtureReaderInterface
     /**
      * @param string $path
      *
-     * @return HandleInterface
+     * @return ReadHandleInterface
      */
-    public function readFile($path)
+    public function openFile($path)
     {
-        return new Handle(
+        return new ReadHandle(
             null,
             $path
         );
@@ -30,11 +30,11 @@ class FixtureReader implements FixtureReaderInterface
      * @param stream{readable: true} $stream
      * @param string|null            $path
      *
-     * @return HandleInterface
+     * @return ReadHandleInterface
      */
-    public function readStream($stream, $path = null)
+    public function openStream($stream, $path = null)
     {
-        return new Handle(
+        return new ReadHandle(
             $stream,
             $path
         );

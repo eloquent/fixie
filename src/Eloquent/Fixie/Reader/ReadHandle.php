@@ -11,12 +11,14 @@
 
 namespace Eloquent\Fixie\Reader;
 
+use Eloquent\Fixie\Handle\Exception\ClosedHandleException;
+use Eloquent\Fixie\Handle\Exception\EmptyHandleException;
 use ErrorException;
 use Icecave\Isolator\Isolator;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
-class Handle implements HandleInterface
+class ReadHandle implements ReadHandleInterface
 {
     /**
      * @param stream{readable: true}|null $stream
@@ -31,7 +33,7 @@ class Handle implements HandleInterface
         Isolator $isolator = null
     ) {
         if (null === $stream && null === $path) {
-            throw new Exception\EmptyHandleException;
+            throw new EmptyHandleException;
         }
         if (null === $parser) {
             $parser = new Parser;
@@ -43,6 +45,7 @@ class Handle implements HandleInterface
         $this->isolator = Isolator::get($isolator);
         $this->rewindOffset = 0;
         $this->isExhausted = false;
+        $this->isClosed = false;
         $this->isExpanded = false;
     }
 
@@ -51,6 +54,10 @@ class Handle implements HandleInterface
      */
     public function stream()
     {
+        if ($this->isClosed) {
+            throw new ClosedHandleException($this->path());
+        }
+
         if (null === $this->stream) {
             try {
                 $this->stream = $this->isolator->fopen($this->path(), 'rb');
@@ -76,6 +83,25 @@ class Handle implements HandleInterface
     public function parser()
     {
         return $this->parser;
+    }
+
+    public function close()
+    {
+        if ($this->isClosed) {
+            throw new ClosedHandleException($this->path());
+        }
+
+        if (null === $this->stream) {
+            $this->isClosed = true;
+        } else {
+            try {
+                $this->isolator->fclose($this->stream());
+            } catch (ErrorException $e) {
+                throw new Exception\ReadException($this->path(), $e);
+            }
+
+            $this->isClosed = true;
+        }
     }
 
     public function rewind()
@@ -418,6 +444,7 @@ class Handle implements HandleInterface
     private $rewindOffset;
     private $currentLine;
     private $isExhausted;
+    private $isClosed;
 
     private $isExpanded;
     private $columnNames;

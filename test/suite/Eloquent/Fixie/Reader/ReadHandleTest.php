@@ -14,7 +14,7 @@ namespace Eloquent\Fixie\Reader;
 use Phake;
 use PHPUnit_Framework_TestCase;
 
-class HandleTest extends PHPUnit_Framework_TestCase
+class ReadHandleTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
@@ -49,7 +49,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $stream = $this->streamFixture();
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $stream,
             'foo',
             $this->_parser,
@@ -64,7 +64,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
     public function testConstructorDefaults()
     {
         $this->_streams[] = $stream = fopen('data://text/plain;base64,', 'rb');
-        $handle = new Handle($stream);
+        $handle = new ReadHandle($stream);
 
         $this->assertNull($handle->path());
         $this->assertInstanceOf(
@@ -76,9 +76,25 @@ class HandleTest extends PHPUnit_Framework_TestCase
     public function testConstructorFailureEmpty()
     {
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\EmptyHandleException'
+            'Eloquent\Fixie\Handle\Exception\EmptyHandleException'
         );
-        new Handle;
+        new ReadHandle;
+    }
+
+    public function testStreamFailureClosed()
+    {
+        $handle = new ReadHandle(
+            null,
+            'foo',
+            null,
+            $this->_isolator
+        );
+        $handle->close();
+
+        $this->setExpectedException(
+            'Eloquent\Fixie\Handle\Exception\ClosedHandleException'
+        );
+        $handle->stream();
     }
 
     public function testLazyStreamLoading()
@@ -88,7 +104,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
             ->fopen(Phake::anyParameters())
             ->thenReturn($stream)
         ;
-        $handle = new Handle(
+        $handle = new ReadHandle(
             null,
             'foo',
             null,
@@ -109,7 +125,7 @@ class HandleTest extends PHPUnit_Framework_TestCase
             ->fopen(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new Handle(
+        $handle = new ReadHandle(
             null,
             'foo',
             null,
@@ -120,6 +136,70 @@ class HandleTest extends PHPUnit_Framework_TestCase
             __NAMESPACE__.'\Exception\ReadException'
         );
         $handle->stream();
+    }
+
+    public function testClose()
+    {
+        $stream = $this->streamFixture();
+        $handle = new ReadHandle(
+            $stream,
+            null,
+            null,
+            $this->_isolator
+        );
+        $handle->close();
+
+        Phake::verify($this->_isolator)->fclose($this->identicalTo($stream));
+    }
+
+    public function testCloseNeverOpened()
+    {
+        $handle = new ReadHandle(
+            null,
+            'foo',
+            null,
+            $this->_isolator
+        );
+        $handle->close();
+
+        Phake::verify($this->_isolator, Phake::never())
+            ->fclose(Phake::anyParameters())
+        ;
+    }
+
+    public function testCloseFailureAlreadyClosed()
+    {
+        $handle = new ReadHandle(
+            null,
+            'foo',
+            null,
+            $this->_isolator
+        );
+        $handle->close();
+
+        $this->setExpectedException(
+            'Eloquent\Fixie\Handle\Exception\ClosedHandleException'
+        );
+        $handle->close();
+    }
+
+    public function testCloseFailureFcloseError()
+    {
+        Phake::when($this->_isolator)
+            ->fclose(Phake::anyParameters())
+            ->thenThrow(Phake::mock('ErrorException'))
+        ;
+        $handle = new ReadHandle(
+            $this->streamFixture(),
+            null,
+            null,
+            $this->_isolator
+        );
+
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\ReadException'
+        );
+        $handle->close();
     }
 
     public function handleData()
@@ -340,7 +420,7 @@ EOD;
      */
     public function testHandle(array $expected, $yaml)
     {
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $this->streamFixture($yaml),
             'foo',
             $this->_parser,
@@ -362,7 +442,7 @@ EOD;
     public function testRewindOffsetCompactWithColumns()
     {
         $stream = $this->streamFixture("\n\ncolumns: []\ndata: [\n]");
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $stream,
             'foo',
             $this->_parser,
@@ -386,7 +466,7 @@ EOD;
     public function testRewindOffsetCompactWithoutColumns()
     {
         $stream = $this->streamFixture("\n\ndata: [\n]");
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $stream,
             'foo',
             $this->_parser,
@@ -410,7 +490,7 @@ EOD;
     public function testRewindOffsetExpanded()
     {
         $stream = $this->streamFixture("\n\n- bar: qux\n  baz: doom\n- bar: splat\n  baz: ping");
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $stream,
             'foo',
             $this->_parser,
@@ -505,7 +585,7 @@ EOD;
      */
     public function testHandleFailure($yaml)
     {
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $this->streamFixture($yaml),
             'foo',
             $this->_parser,
@@ -532,7 +612,7 @@ EOD;
             ->fseek(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $this->streamFixture(),
             null,
             null,
@@ -551,7 +631,7 @@ EOD;
             ->fgets(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $this->streamFixture(),
             null,
             null,
@@ -570,7 +650,7 @@ EOD;
             ->ftell(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new Handle(
+        $handle = new ReadHandle(
             $this->streamFixture("data: [\n]"),
             null,
             null,

@@ -9,11 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Fixie\Reader;
+namespace Eloquent\Fixie\Handle;
 
-use Iterator;
-
-interface HandleInterface extends Iterator
+interface HandleInterface
 {
     /**
      * @return stream {readable: true}
@@ -24,4 +22,6 @@ interface HandleInterface extends Iterator
      * @return string|null
      */
     public function path();
+
+    public function close();
 }
