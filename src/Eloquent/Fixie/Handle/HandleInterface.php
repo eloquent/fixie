@@ -23,5 +23,10 @@ interface HandleInterface
      */
     public function path();
 
+    /**
+     * @return boolean
+     */
+    public function isClosed();
+
     public function close();
 }

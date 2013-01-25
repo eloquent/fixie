@@ -11,14 +11,14 @@
 
 namespace Eloquent\Fixie\Reader;
 
-use Eloquent\Fixie\Handle\Exception\ClosedHandleException;
-use Eloquent\Fixie\Handle\Exception\EmptyHandleException;
+use Eloquent\Fixie\Handle\AbstractHandle;
+use Eloquent\Fixie\Handle\Exception\ReadException;
 use ErrorException;
 use Icecave\Isolator\Isolator;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
-class ReadHandle implements ReadHandleInterface
+class ReadHandle extends AbstractHandle implements ReadHandleInterface
 {
     /**
      * @param stream{readable: true}|null $stream
@@ -32,49 +32,20 @@ class ReadHandle implements ReadHandleInterface
         Parser $parser = null,
         Isolator $isolator = null
     ) {
-        if (null === $stream && null === $path) {
-            throw new EmptyHandleException;
-        }
+        parent::__construct(
+            $stream,
+            $path,
+            $isolator
+        );
+
         if (null === $parser) {
             $parser = new Parser;
         }
 
-        $this->stream = $stream;
-        $this->path = $path;
         $this->parser = $parser;
-        $this->isolator = Isolator::get($isolator);
         $this->rewindOffset = 0;
         $this->isExhausted = false;
-        $this->isClosed = false;
         $this->isExpanded = false;
-    }
-
-    /**
-     * @return stream{readable: true}
-     */
-    public function stream()
-    {
-        if ($this->isClosed) {
-            throw new ClosedHandleException($this->path());
-        }
-
-        if (null === $this->stream) {
-            try {
-                $this->stream = $this->isolator->fopen($this->path(), 'rb');
-            } catch (ErrorException $e) {
-                throw new Exception\ReadException($this->path(), $e);
-            }
-        }
-
-        return $this->stream;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function path()
-    {
-        return $this->path;
     }
 
     /**
@@ -85,31 +56,12 @@ class ReadHandle implements ReadHandleInterface
         return $this->parser;
     }
 
-    public function close()
-    {
-        if ($this->isClosed) {
-            throw new ClosedHandleException($this->path());
-        }
-
-        if (null === $this->stream) {
-            $this->isClosed = true;
-        } else {
-            try {
-                $this->isolator->fclose($this->stream());
-            } catch (ErrorException $e) {
-                throw new Exception\ReadException($this->path(), $e);
-            }
-
-            $this->isClosed = true;
-        }
-    }
-
     public function rewind()
     {
         try {
-            $this->isolator->fseek($this->stream(), $this->rewindOffset);
+            $this->isolator()->fseek($this->stream(), $this->rewindOffset);
         } catch (ErrorException $e) {
-            throw new Exception\ReadException($this->path(), $e);
+            throw new ReadException($this->path(), $e);
         }
 
         $this->current = null;
@@ -155,6 +107,14 @@ class ReadHandle implements ReadHandleInterface
     public function next()
     {
         $this->current = null;
+    }
+
+    /**
+     * @return string
+     */
+    protected function streamMode()
+    {
+        return 'rb';
     }
 
     protected function populateCurrent()
@@ -206,7 +166,7 @@ class ReadHandle implements ReadHandleInterface
 
             $line = $this->readNonEmptyLine();
             if ("data: [\n" !== $line) {
-                throw new Exception\ReadException($this->path());
+                throw new ReadException($this->path());
             }
             $this->rewindOffset = $this->streamPosition();
 
@@ -220,7 +180,7 @@ class ReadHandle implements ReadHandleInterface
             $this->rewindOffset = $this->streamPosition();
             $line = $this->readNonEmptyLine();
             if (null === $line) {
-                throw new Exception\ReadException($this->path());
+                throw new ReadException($this->path());
             }
 
             if (']' === trim($line)) {
@@ -232,7 +192,7 @@ class ReadHandle implements ReadHandleInterface
                 $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
             }
         } else {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return $row;
@@ -257,7 +217,7 @@ class ReadHandle implements ReadHandleInterface
     {
         $line = $this->readNonEmptyLine();
         if (null === $line) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
         if (']' === trim($line)) {
             return null;
@@ -265,7 +225,7 @@ class ReadHandle implements ReadHandleInterface
 
         $row = $this->parseCompactRowYaml($line);
         if (array_keys($row) !== $this->expectedRowKeys) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return array_combine($this->columnNames, $row);
@@ -283,7 +243,7 @@ class ReadHandle implements ReadHandleInterface
 
         $row = $this->parseExpandedRowYaml($data);
         if (array_keys($row) !== $this->expectedRowKeys) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return $row;
@@ -297,7 +257,7 @@ class ReadHandle implements ReadHandleInterface
     protected function parseCompactRowYaml($yaml)
     {
         if (",\n" !== substr($yaml, -2)) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return $this->parseArrayYaml(substr($yaml, 0, -2));
@@ -312,7 +272,7 @@ class ReadHandle implements ReadHandleInterface
     {
         $data = $this->parseArrayYaml($yaml);
         if (!is_array($data[0])) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return $data[0];
@@ -340,7 +300,7 @@ class ReadHandle implements ReadHandleInterface
         try {
             $data = $this->parser()->parse($yaml);
         } catch (ParseException $e) {
-            throw new Exception\ReadException($this->path(), $e);
+            throw new ReadException($this->path(), $e);
         }
 
         return $data;
@@ -355,7 +315,7 @@ class ReadHandle implements ReadHandleInterface
     {
         $data = $this->parseYaml($yaml);
         if (!is_array($data)) {
-            throw new Exception\ReadException($this->path());
+            throw new ReadException($this->path());
         }
 
         return $data;
@@ -367,9 +327,9 @@ class ReadHandle implements ReadHandleInterface
     protected function readLine()
     {
         try {
-            $this->currentLine = $this->isolator->fgets($this->stream());
+            $this->currentLine = $this->isolator()->fgets($this->stream());
         } catch (ErrorException $e) {
-            throw new Exception\ReadException($this->path(), $e);
+            throw new ReadException($this->path(), $e);
         }
 
         if (false === $this->currentLine) {
@@ -426,25 +386,21 @@ class ReadHandle implements ReadHandleInterface
     protected function streamPosition()
     {
         try {
-            $position = $this->isolator->ftell($this->stream());
+            $position = $this->isolator()->ftell($this->stream());
         } catch (ErrorException $e) {
-            throw new Exception\ReadException($this->path(), $e);
+            throw new ReadException($this->path(), $e);
         }
 
         return $position;
     }
 
-    private $stream;
-    private $path;
     private $parser;
-    private $isolator;
 
     private $current;
     private $index;
     private $rewindOffset;
     private $currentLine;
     private $isExhausted;
-    private $isClosed;
 
     private $isExpanded;
     private $columnNames;

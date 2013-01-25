@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Fixie\Reader\Exception;
+namespace Eloquent\Fixie\Handle\Exception;
 
 use Exception;
 use RuntimeException;
 
-final class ReadException extends RuntimeException
+final class WriteException extends RuntimeException
 {
     /**
      * @param string|null    $path
@@ -25,9 +25,9 @@ final class ReadException extends RuntimeException
         $this->path = $path;
 
         if (null === $path) {
-            $message = 'Unable to read data from stream.';
+            $message = 'Unable to write data to stream.';
         } else {
-            $message = sprintf("Unable to read data from file '%s'.", $path);
+            $message = sprintf("Unable to write data to file '%s'.", $path);
         }
 
         parent::__construct($message, 0, $previous);

@@ -21,7 +21,7 @@ interface FixtureWriterInterface
     public function openFile($path);
 
     /**
-     * @param stream{readable: true} $stream
+     * @param stream{writable: true} $stream
      *
      * @return WriteHandleInterface
      */

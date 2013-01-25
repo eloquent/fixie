@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Fixie\Reader\Exception;
+namespace Eloquent\Fixie\Handle\Exception;
 
 use Phake;
 use PHPUnit_Framework_TestCase;

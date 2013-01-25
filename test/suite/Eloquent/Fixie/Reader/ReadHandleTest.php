@@ -14,6 +14,10 @@ namespace Eloquent\Fixie\Reader;
 use Phake;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Fixie\Reader\ReadHandle
+ * @covers \Eloquent\Fixie\Handle\AbstractHandle
+ */
 class ReadHandleTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
@@ -133,7 +137,7 @@ class ReadHandleTest extends PHPUnit_Framework_TestCase
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         $handle->stream();
     }
@@ -197,7 +201,7 @@ class ReadHandleTest extends PHPUnit_Framework_TestCase
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         $handle->close();
     }
@@ -593,7 +597,7 @@ EOD;
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         iterator_to_array($handle);
     }
@@ -620,7 +624,7 @@ EOD;
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         iterator_to_array($handle);
     }
@@ -639,7 +643,7 @@ EOD;
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         iterator_to_array($handle);
     }
@@ -658,7 +662,7 @@ EOD;
         );
 
         $this->setExpectedException(
-            __NAMESPACE__.'\Exception\ReadException'
+            'Eloquent\Fixie\Handle\Exception\ReadException'
         );
         iterator_to_array($handle);
     }
