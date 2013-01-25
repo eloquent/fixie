@@ -131,6 +131,20 @@ EOD;
         $data['Compact with column names'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
+columns: [bar, baz]
+data: [
+[qux, doom],
+]
+EOD;
+        $expected = array(
+            array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+        );
+        $data['Compact with column names, single row'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
 data: [
 [qux, doom],
 [splat, ping],
@@ -217,6 +231,58 @@ EOD;
         );
         $data['Aligned data and columns'] = array($expected, $yaml);
 
+        $yaml = <<<'EOD'
+- bar: qux
+  baz: doom
+- bar: splat
+  baz: ping
+EOD;
+        $expected = array(
+            array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+            array(
+                'bar' => 'splat',
+                'baz' => 'ping',
+            ),
+        );
+        $data['Expanded'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
+- bar: qux
+  baz: doom
+EOD;
+        $expected = array(
+            array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+        );
+        $data['Expanded single row'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
+
+- bar: qux
+
+  baz: doom
+
+- bar: splat
+
+  baz: ping
+EOD;
+        $expected = array(
+            array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+            array(
+                'bar' => 'splat',
+                'baz' => 'ping',
+            ),
+        );
+        $data['Expanded interleaved whitespace'] = array($expected, $yaml);
+
         return $data;
     }
 
@@ -246,7 +312,7 @@ EOD;
 
     public function testRewindOffsetCompactWithColumns()
     {
-        $stream = $this->streamFixture("columns: []\ndata: [\n]");
+        $stream = $this->streamFixture("\n\ncolumns: []\ndata: [\n]");
         $handle = new Handle(
             $stream,
             'foo',
@@ -263,14 +329,14 @@ EOD;
             ),
             Phake::verify($this->_isolator)->fseek(
                 $this->identicalTo($stream),
-                20
+                22
             )
         );
     }
 
     public function testRewindOffsetCompactWithoutColumns()
     {
-        $stream = $this->streamFixture("data: [\n]");
+        $stream = $this->streamFixture("\n\ndata: [\n]");
         $handle = new Handle(
             $stream,
             'foo',
@@ -287,7 +353,31 @@ EOD;
             ),
             Phake::verify($this->_isolator)->fseek(
                 $this->identicalTo($stream),
-                8
+                10
+            )
+        );
+    }
+
+    public function testRewindOffsetExpanded()
+    {
+        $stream = $this->streamFixture("\n\n- bar: qux\n  baz: doom\n- bar: splat\n  baz: ping");
+        $handle = new Handle(
+            $stream,
+            'foo',
+            $this->_parser,
+            $this->_isolator
+        );
+        iterator_to_array($handle);
+        iterator_to_array($handle);
+
+        Phake::inOrder(
+            Phake::verify($this->_isolator)->fseek(
+                $this->identicalTo($stream),
+                0
+            ),
+            Phake::verify($this->_isolator)->fseek(
+                $this->identicalTo($stream),
+                2
             )
         );
     }
@@ -342,7 +432,21 @@ data: [
 ~,
 ]
 EOD;
-        $data['Wrong row data type'] = array($yaml);
+        $data['Compact wrong row data type'] = array($yaml);
+
+        $yaml = <<<'EOD'
+- ~
+EOD;
+        $data['Expanded wrong row data type'] = array($yaml);
+
+        $yaml = <<<'EOD'
+- bar: qux
+  baz: doom
+- bar: splat
+  baz: ping
+  pong: pang
+EOD;
+        $data['Expanded row key mismatch'] = array($yaml);
 
         return $data;
     }

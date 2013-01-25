@@ -41,6 +41,7 @@ class Handle implements Iterator
         $this->isolator = Isolator::get($isolator);
         $this->rewindOffset = 0;
         $this->isExhausted = false;
+        $this->isExpanded = false;
     }
 
     /**
@@ -78,6 +79,11 @@ class Handle implements Iterator
         $this->current = null;
         $this->index = null;
         $this->isExhausted = false;
+        $this->currentLine = null;
+
+        if ($this->isExpanded) {
+            $this->readLine();
+        }
     }
 
     /**
@@ -155,7 +161,10 @@ class Handle implements Iterator
             return null;
         }
 
+        $this->rewindOffset = $this->streamPosition() - strlen($line);
+
         if ('columns: [' === substr($line, 0, 10)) {
+            $this->isExpanded = false;
             $this->columnNames = $this->parseColumnNamesHeader($line);
             $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
 
@@ -166,7 +175,12 @@ class Handle implements Iterator
             $this->rewindOffset = $this->streamPosition();
 
             $row = $this->parseSubsequentRow();
+        } elseif ('- ' === substr($line, 0, 2)) {
+            $this->isExpanded = true;
+            $row = $this->parseExpandedRowYaml($this->readExpandedRowLines());
+            $this->columnNames = $this->expectedRowKeys = array_keys($row);
         } elseif ('data: [' === trim($line)) {
+            $this->isExpanded = false;
             $this->rewindOffset = $this->streamPosition();
             $line = $this->readNonEmptyLine();
             if (null === $line) {
@@ -175,10 +189,9 @@ class Handle implements Iterator
 
             if (']' === trim($line)) {
                 $row = null;
-                $this->columnNames = array();
-                $this->expectedRowKeys = array();
+                $this->columnNames = $this->expectedRowKeys = array();
             } else {
-                $row = $this->parseRowYaml($line);
+                $row = $this->parseCompactRowYaml($line);
                 $this->columnNames = array_keys($row);
                 $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
             }
@@ -194,6 +207,18 @@ class Handle implements Iterator
      */
     protected function parseSubsequentRow()
     {
+        if ($this->isExpanded) {
+            return $this->parseSubsequentExpandedRow();
+        }
+
+        return $this->parseSubsequentCompactRow();
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function parseSubsequentCompactRow()
+    {
         $line = $this->readNonEmptyLine();
         if (null === $line) {
             throw new Exception\ReadException($this->path());
@@ -202,7 +227,7 @@ class Handle implements Iterator
             return null;
         }
 
-        $row = $this->parseRowYaml($line);
+        $row = $this->parseCompactRowYaml($line);
         if (array_keys($row) !== $this->expectedRowKeys) {
             throw new Exception\ReadException($this->path());
         }
@@ -211,17 +236,50 @@ class Handle implements Iterator
     }
 
     /**
+     * @return array|null
+     */
+    protected function parseSubsequentExpandedRow()
+    {
+        $data = $this->readExpandedRowLines();
+        if (null === $data) {
+            return null;
+        }
+
+        $row = $this->parseExpandedRowYaml($data);
+        if (array_keys($row) !== $this->expectedRowKeys) {
+            throw new Exception\ReadException($this->path());
+        }
+
+        return $row;
+    }
+
+    /**
      * @param string $yaml
      *
      * @return array
      */
-    protected function parseRowYaml($yaml)
+    protected function parseCompactRowYaml($yaml)
     {
         if (",\n" !== substr($yaml, -2)) {
             throw new Exception\ReadException($this->path());
         }
 
         return $this->parseArrayYaml(substr($yaml, 0, -2));
+    }
+
+    /**
+     * @param string $yaml
+     *
+     * @return array
+     */
+    protected function parseExpandedRowYaml($yaml)
+    {
+        $data = $this->parseArrayYaml($yaml);
+        if (!is_array($data[0])) {
+            throw new Exception\ReadException($this->path());
+        }
+
+        return $data[0];
     }
 
     /**
@@ -273,16 +331,16 @@ class Handle implements Iterator
     protected function readLine()
     {
         try {
-            $line = $this->isolator->fgets($this->stream());
+            $this->currentLine = $this->isolator->fgets($this->stream());
         } catch (ErrorException $e) {
             throw new Exception\ReadException($this->path(), $e);
         }
 
-        if (false === $line) {
+        if (false === $this->currentLine) {
             return null;
         }
 
-        return $line;
+        return $this->currentLine;
     }
 
     /**
@@ -303,6 +361,27 @@ class Handle implements Iterator
         );
 
         return $line;
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function readExpandedRowLines()
+    {
+        if (null === $this->currentLine) {
+            return null;
+        }
+
+        $lines = array();
+        do {
+            $lines[] = $this->currentLine;
+            $this->currentLine = $this->readLine();
+        } while (
+            null !== $this->currentLine &&
+            '- ' !== substr($this->currentLine, 0, 2)
+        );
+
+        return implode('', $lines);
     }
 
     /**
@@ -327,8 +406,10 @@ class Handle implements Iterator
     private $current;
     private $index;
     private $rewindOffset;
+    private $currentLine;
     private $isExhausted;
 
+    private $isExpanded;
     private $columnNames;
     private $expectedRowKeys;
 }
