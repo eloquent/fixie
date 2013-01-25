@@ -73,6 +73,55 @@ class HandleTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testConstructorFailureEmpty()
+    {
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\EmptyHandleException'
+        );
+        new Handle;
+    }
+
+    public function testLazyStreamLoading()
+    {
+        $stream = $this->streamFixture();
+        Phake::when($this->_isolator)
+            ->fopen(Phake::anyParameters())
+            ->thenReturn($stream)
+        ;
+        $handle = new Handle(
+            null,
+            'foo',
+            null,
+            $this->_isolator
+        );
+
+        $this->assertSame($stream, $handle->stream());
+        $this->assertSame($stream, $handle->stream());
+        Phake::verify($this->_isolator)
+            ->fopen('foo', 'rb')
+        ;
+    }
+
+    public function testLazyStreamLoadingFailure()
+    {
+        $stream = $this->streamFixture();
+        Phake::when($this->_isolator)
+            ->fopen(Phake::anyParameters())
+            ->thenThrow(Phake::mock('ErrorException'))
+        ;
+        $handle = new Handle(
+            null,
+            'foo',
+            null,
+            $this->_isolator
+        );
+
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\ReadException'
+        );
+        $handle->stream();
+    }
+
     public function handleData()
     {
         $data = array();

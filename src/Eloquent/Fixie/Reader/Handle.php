@@ -13,24 +13,26 @@ namespace Eloquent\Fixie\Reader;
 
 use ErrorException;
 use Icecave\Isolator\Isolator;
-use Iterator;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
-class Handle implements Iterator
+class Handle implements HandleInterface
 {
     /**
-     * @param stream {readable: true} $stream
-     * @param string                  $path
-     * @param Parser|null             $parser
-     * @param Isolator|null           $isolator
+     * @param stream{readable: true}|null $stream
+     * @param string|null                 $path
+     * @param Parser|null                 $parser
+     * @param Isolator|null               $isolator
      */
     public function __construct(
-        $stream,
+        $stream = null,
         $path = null,
         Parser $parser = null,
         Isolator $isolator = null
     ) {
+        if (null === $stream && null === $path) {
+            throw new Exception\EmptyHandleException;
+        }
         if (null === $parser) {
             $parser = new Parser;
         }
@@ -45,15 +47,23 @@ class Handle implements Iterator
     }
 
     /**
-     * @return stream {readable: true}
+     * @return stream{readable: true}
      */
     public function stream()
     {
+        if (null === $this->stream) {
+            try {
+                $this->stream = $this->isolator->fopen($this->path(), 'rb');
+            } catch (ErrorException $e) {
+                throw new Exception\ReadException($this->path(), $e);
+            }
+        }
+
         return $this->stream;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function path()
     {
