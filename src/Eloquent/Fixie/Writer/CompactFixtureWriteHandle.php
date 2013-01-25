@@ -66,6 +66,32 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
         $this->writeRow($row);
     }
 
+    public function close()
+    {
+        if (!$this->isClosed() && $this->headerWritten) {
+            $this->writeFooter();
+        }
+
+        parent::close();
+    }
+
+    /**
+     * @return stream
+     */
+    protected function openStream()
+    {
+        try {
+            $stream = $this->isolator()->fopen(
+                $this->path(),
+                'wb'
+            );
+        } catch (ErrorException $e) {
+            throw new WriteException($this->path(), $e);
+        }
+
+        return $stream;
+    }
+
     /**
      * @param array $columnNames
      */
@@ -90,6 +116,11 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
             "%s,\n",
             $this->generator->dump(array_values($row))
         ));
+    }
+
+    protected function writeFooter()
+    {
+        $this->writeData("]\n");
     }
 
     /**

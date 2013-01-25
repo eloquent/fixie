@@ -46,14 +46,7 @@ abstract class AbstractHandle implements HandleInterface
         }
 
         if (null === $this->stream) {
-            try {
-                $this->stream = $this->isolator()->fopen(
-                    $this->path(),
-                    $this->streamMode()
-                );
-            } catch (ErrorException $e) {
-                throw new Exception\ReadException($this->path(), $e);
-            }
+            $this->stream = $this->openStream();
         }
 
         return $this->stream;
@@ -103,9 +96,9 @@ abstract class AbstractHandle implements HandleInterface
     }
 
     /**
-     * @return string
+     * @return stream
      */
-    abstract protected function streamMode();
+    abstract protected function openStream();
 
     private $stream;
     private $path;

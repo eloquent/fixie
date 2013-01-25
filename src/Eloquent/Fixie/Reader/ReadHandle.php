@@ -110,11 +110,20 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     }
 
     /**
-     * @return string
+     * @return stream
      */
-    protected function streamMode()
+    protected function openStream()
     {
-        return 'rb';
+        try {
+            $stream = $this->isolator()->fopen(
+                $this->path(),
+                'rb'
+            );
+        } catch (ErrorException $e) {
+            throw new ReadException($this->path(), $e);
+        }
+
+        return $stream;
     }
 
     protected function populateCurrent()
