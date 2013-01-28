@@ -443,6 +443,26 @@ EOD;
         $this->testHandle($expected, $yaml."\n");
     }
 
+    /**
+     * @dataProvider handleData
+     */
+    public function testReadMethods(array $expected, $yaml)
+    {
+        $handle = new ReadHandle(
+            $this->streamFixture($yaml),
+            'foo',
+            $this->_parser,
+            $this->_isolator
+        );
+        $actual = array();
+        while (null !== ($row = $handle->read())) {
+            $actual[] = $row;
+        }
+
+        $this->assertSame($expected, $actual);
+        $this->assertSame($expected, $handle->readAll());
+    }
+
     public function testRewindOffsetCompactWithColumns()
     {
         $stream = $this->streamFixture("\n\ncolumns: []\ndata: [\n]");

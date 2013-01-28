@@ -110,6 +110,25 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     }
 
     /**
+     * @return array|null
+     */
+    public function read()
+    {
+        $row = $this->current();
+        $this->next();
+
+        return $row;
+    }
+
+    /**
+     * @return array<array>
+     */
+    public function readAll()
+    {
+        return iterator_to_array($this);
+    }
+
+    /**
      * @return stream
      */
     protected function openStream()

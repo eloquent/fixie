@@ -16,4 +16,13 @@ use Iterator;
 
 interface ReadHandleInterface extends HandleInterface, Iterator
 {
+    /**
+     * @return array|null
+     */
+    public function read();
+
+    /**
+     * @return array<array>
+     */
+    public function readAll();
 }
