@@ -56,7 +56,7 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
     /**
      * @param array $row
      */
-    public function put(array $row)
+    public function write(array $row)
     {
         if (!$this->headerWritten) {
             $this->writeHeader(array_keys($row));

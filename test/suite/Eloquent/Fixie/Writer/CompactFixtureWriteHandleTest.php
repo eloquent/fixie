@@ -274,7 +274,7 @@ EOD;
             $this->_isolator
         );
         foreach ($rows as $row) {
-            $handle->put($row);
+            $handle->write($row);
         }
         $handle->close();
 
@@ -297,6 +297,6 @@ EOD;
         $this->setExpectedException(
             'Eloquent\Fixie\Handle\Exception\WriteException'
         );
-        $handle->put(array());
+        $handle->write(array());
     }
 }

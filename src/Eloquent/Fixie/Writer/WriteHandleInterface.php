@@ -18,5 +18,5 @@ interface WriteHandleInterface extends HandleInterface
     /**
      * @param array $row
      */
-    public function put(array $row);
+    public function write(array $row);
 }
