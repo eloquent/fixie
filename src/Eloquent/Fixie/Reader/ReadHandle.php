@@ -199,7 +199,10 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
             $this->rewindOffset = $this->streamPosition();
 
             $row = $this->parseSubsequentRow();
-        } elseif ('- ' === substr($line, 0, 2)) {
+        } elseif (
+            "-\n" === $line ||
+            '- ' === substr($line, 0, 2)
+        ) {
             $this->isExpanded = true;
             $row = $this->parseExpandedRowYaml($this->readExpandedRowLines());
             $this->columnNames = $this->expectedRowKeys = array_keys($row);
@@ -402,6 +405,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
             $this->currentLine = $this->readLine();
         } while (
             null !== $this->currentLine &&
+            "-\n" !== $this->currentLine &&
             '- ' !== substr($this->currentLine, 0, 2)
         );
 

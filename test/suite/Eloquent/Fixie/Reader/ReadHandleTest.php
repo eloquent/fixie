@@ -416,6 +416,26 @@ EOD;
         );
         $data['Expanded interleaved whitespace'] = array($expected, $yaml);
 
+        $yaml = <<<'EOD'
+-
+  - qux
+  - doom
+-
+  - splat
+  - ping
+EOD;
+        $expected = array(
+            array(
+                'qux',
+                'doom',
+            ),
+            array(
+                'splat',
+                'ping',
+            ),
+        );
+        $data['Expanded without column names'] = array($expected, $yaml);
+
         return $data;
     }
 
