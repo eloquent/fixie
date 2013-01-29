@@ -11,85 +11,28 @@
 
 namespace Eloquent\Fixie\Writer;
 
-use Eloquent\Fixie\Handle\AbstractHandle;
-use Eloquent\Fixie\Handle\Exception\WriteException;
-use ErrorException;
-use Icecave\Isolator\Isolator;
-use Symfony\Component\Yaml\Inline;
-
-class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInterface
+class CompactFixtureWriteHandle extends AbstractWriteHandle
 {
-    /**
-     * @param stream{writable: true}|null $stream
-     * @param string|null                 $path
-     * @param Inline|null                 $generator
-     * @param Isolator|null               $isolator
-     */
-    public function __construct(
-        $stream = null,
-        $path = null,
-        Inline $generator = null,
-        Isolator $isolator = null
-    ) {
-        parent::__construct(
-            $stream,
-            $path,
-            $isolator
-        );
-
-        if (null === $generator) {
-            $generator = new Inline;
-        }
-
-        $this->generator = $generator;
-        $this->headerWritten = false;
-    }
-
-    /**
-     * @return Inline
-     */
-    public function generator()
-    {
-        return $this->generator;
-    }
-
     /**
      * @param array $row
      */
     public function write(array $row)
     {
-        if (!$this->headerWritten) {
-            $this->writeHeader(array_keys($row));
-            $this->headerWritten = true;
+        if (null === $this->columnNames) {
+            $this->columnNames = array_keys($row);
+            $this->writeHeader($this->columnNames);
         }
 
-        $this->writeRow($row);
+        $this->writeRow($this->projectRow($this->columnNames, $row));
     }
 
     public function close()
     {
-        if (!$this->isClosed() && $this->headerWritten) {
+        if (!$this->isClosed() && null !== $this->columnNames) {
             $this->writeFooter();
         }
 
         parent::close();
-    }
-
-    /**
-     * @return stream
-     */
-    protected function openStream()
-    {
-        try {
-            $stream = $this->isolator()->fopen(
-                $this->path(),
-                'wb'
-            );
-        } catch (ErrorException $e) {
-            throw new WriteException($this->path(), $e);
-        }
-
-        return $stream;
     }
 
     /**
@@ -100,7 +43,7 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
         if (range(0, count($columnNames) - 1) !== $columnNames) {
             $this->writeData(sprintf(
                 "columns: %s\n",
-                $this->generator()->dump($columnNames)
+                $this->renderer()->dump($columnNames)
             ));
         }
 
@@ -114,7 +57,7 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
     {
         $this->writeData(sprintf(
             "%s,\n",
-            $this->generator->dump(array_values($row))
+            $this->renderer()->dump(array_values($row))
         ));
     }
 
@@ -123,21 +66,5 @@ class CompactFixtureWriteHandle extends AbstractHandle implements WriteHandleInt
         $this->writeData("]\n");
     }
 
-    /**
-     * @param string $data
-     */
-    protected function writeData($data)
-    {
-        try {
-            $this->isolator()->fwrite(
-                $this->stream(),
-                $data
-            );
-        } catch (ErrorException $e) {
-            throw new WriteException($this->path(), $e);
-        }
-    }
-
-    private $generator;
-    private $headerWritten;
+    private $columnNames;
 }

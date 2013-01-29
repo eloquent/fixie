@@ -16,10 +16,10 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @covers \Eloquent\Fixie\Writer\AbstractWriteHandle
- * @covers \Eloquent\Fixie\Writer\CompactFixtureWriteHandle
+ * @covers \Eloquent\Fixie\Writer\AlignedCompactFixtureWriteHandle
  * @covers \Eloquent\Fixie\Handle\AbstractHandle
  */
-class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
+class AlignedCompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
@@ -60,7 +60,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $stream = $this->streamFixture();
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $stream,
             'foo',
             $this->_renderer,
@@ -75,7 +75,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
     public function testConstructorDefaults()
     {
         $this->_streams[] = $stream = fopen('data://text/plain;base64,', 'wb');
-        $handle = new CompactFixtureWriteHandle($stream);
+        $handle = new AlignedCompactFixtureWriteHandle($stream);
 
         $this->assertNull($handle->path());
         $this->assertInstanceOf(
@@ -89,12 +89,12 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException(
             'Eloquent\Fixie\Handle\Exception\EmptyHandleException'
         );
-        new CompactFixtureWriteHandle;
+        new AlignedCompactFixtureWriteHandle;
     }
 
     public function testStreamFailureClosed()
     {
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             null,
             'foo',
             null,
@@ -115,7 +115,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
             ->fopen(Phake::anyParameters())
             ->thenReturn($stream)
         ;
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             null,
             'foo',
             null,
@@ -136,7 +136,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
             ->fopen(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             null,
             'foo',
             null,
@@ -152,7 +152,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
     public function testClose()
     {
         $stream = $this->streamFixture();
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $stream,
             null,
             null,
@@ -165,7 +165,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
 
     public function testCloseNeverOpened()
     {
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             null,
             'foo',
             null,
@@ -180,7 +180,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
 
     public function testCloseFailureAlreadyClosed()
     {
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             null,
             'foo',
             null,
@@ -200,7 +200,7 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
             ->fclose(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $this->streamFixture(),
             null,
             null,
@@ -232,10 +232,10 @@ class CompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
             ),
         );
         $expected = <<<'EOD'
-columns: [bar, baz]
+columns: [bar,   baz ]
 data: [
-[qux, doom],
-[splat, ping],
+         [qux,   doom],
+         [splat, ping],
 ]
 
 EOD;
@@ -253,12 +253,32 @@ EOD;
         );
         $expected = <<<'EOD'
 data: [
-[qux, doom],
+[qux,   doom],
 [splat, ping],
 ]
 
 EOD;
         $data['Without column names'] = array($expected, $rows);
+
+        $rows = array(
+            array(
+                'bar' => 'qux',
+                'bazbaz' => 'doom',
+            ),
+            array(
+                'bar' => 'splat',
+                'bazbaz' => 'ping',
+            ),
+        );
+        $expected = <<<'EOD'
+columns: [bar,   bazbaz]
+data: [
+         [qux,   doom  ],
+         [splat, ping  ],
+]
+
+EOD;
+        $data['With longer column name'] = array($expected, $rows);
 
         return $data;
     }
@@ -268,7 +288,7 @@ EOD;
      */
     public function testWriter($expected, array $rows)
     {
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $this->streamFixture(),
             null,
             null,
@@ -284,7 +304,7 @@ EOD;
 
     public function testWriteFailureColumnNameMismatch()
     {
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $this->streamFixture(),
             null,
             null,
@@ -304,16 +324,17 @@ EOD;
             ->fwrite(Phake::anyParameters())
             ->thenThrow(Phake::mock('ErrorException'))
         ;
-        $handle = new CompactFixtureWriteHandle(
+        $handle = new AlignedCompactFixtureWriteHandle(
             $this->streamFixture(),
             null,
             null,
             $this->_isolator
         );
+        $handle->write(array());
 
         $this->setExpectedException(
             'Eloquent\Fixie\Handle\Exception\WriteException'
         );
-        $handle->write(array());
+        $handle->close();
     }
 }
