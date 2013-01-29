@@ -18,7 +18,8 @@
     },
     "require-dev": {
         "eloquent/liberator": "~1",
-        "icecave/testing": "~2"
+        "icecave/testing": "~2",
+        "icecave/woodhouse": "*"
     },
     "autoload": {
         "psr-0": {
