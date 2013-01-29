@@ -232,10 +232,11 @@ class AlignedCompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
             ),
         );
         $expected = <<<'EOD'
-columns: [bar,   baz ]
+columns:
+  [bar,   baz ]
 data: [
-         [qux,   doom],
-         [splat, ping],
+  [qux,   doom],
+  [splat, ping],
 ]
 
 EOD;
@@ -271,10 +272,11 @@ EOD;
             ),
         );
         $expected = <<<'EOD'
-columns: [bar,   bazbaz]
+columns:
+  [bar,   bazbaz]
 data: [
-         [qux,   doom  ],
-         [splat, ping  ],
+  [qux,   doom  ],
+  [splat, ping  ],
 ]
 
 EOD;

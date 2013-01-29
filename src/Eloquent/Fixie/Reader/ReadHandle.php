@@ -187,15 +187,19 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
 
         $this->rewindOffset = $this->streamPosition() - strlen($line);
 
-        if ('columns: [' === substr($line, 0, 10)) {
+        if ('columns:' === substr($line, 0, 8)) {
             $this->isExpanded = false;
-            $this->columnNames = $this->parseColumnNamesHeader($line);
-            $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
 
-            $line = $this->readNonEmptyLine();
-            if ("data: [\n" !== $line) {
-                throw new ReadException($this->path());
-            }
+            do {
+                $lines[] = $line;
+                $line = $this->readNonEmptyLine();
+            } while (
+                null !== $line &&
+                "data: [\n" !== $line
+            );
+
+            $this->columnNames = $this->parseColumnNamesHeader(implode($lines));
+            $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
             $this->rewindOffset = $this->streamPosition();
 
             $row = $this->parseSubsequentRow();
@@ -317,6 +321,12 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     protected function parseColumnNamesHeader($line)
     {
         $data = $this->parseArrayYaml($line);
+        if (
+            !array_key_exists('columns', $data) ||
+            !is_array($data['columns'])
+        ) {
+            throw new ReadException($this->path());
+        }
 
         return $data['columns'];
     }

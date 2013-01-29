@@ -365,6 +365,27 @@ EOD;
         $data['Aligned data and columns'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
+
+columns:
+  [  bar,   baz   ]
+data: [
+  [  qux,   doom  ],
+  [  splat, ping  ],
+]
+EOD;
+        $expected = array(
+            array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+            array(
+                'bar' => 'splat',
+                'baz' => 'ping',
+            ),
+        );
+        $data['Column names on subsequent line'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
 - bar: qux
   baz: doom
 - bar: splat
@@ -599,6 +620,13 @@ data: [
 ]
 EOD;
         $data['Compact without columns and row key mismatch'] = array($yaml);
+
+        $yaml = <<<'EOD'
+columns: ~
+data: [
+]
+EOD;
+        $data['Compact with wrong data type for columns'] = array($yaml);
 
         $yaml = <<<'EOD'
 data: [
