@@ -22,8 +22,9 @@ interface FixtureWriterInterface
 
     /**
      * @param stream{writable: true} $stream
+     * @param string|null            $path
      *
      * @return WriteHandleInterface
      */
-    public function openStream($stream);
+    public function openStream($stream, $path = null);
 }

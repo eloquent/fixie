@@ -1,5 +1,5 @@
 {
-    "hash": "6cadd26da45d717246880c7ddb013f2f",
+    "hash": "7c94c040d31dc241b35d17026b17b1e7",
     "packages": [
         {
             "name": "icecave/isolator",
@@ -186,16 +186,16 @@
         },
         {
             "name": "icecave/testing",
-            "version": "1.1.4",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/testing.git",
-                "reference": "1.1.4"
+                "reference": "2.0.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/IcecaveStudios/testing/archive/1.1.4.zip",
-                "reference": "1.1.4",
+                "url": "https://github.com/IcecaveStudios/testing/archive/2.0.1.zip",
+                "reference": "2.0.1",
                 "shasum": ""
             },
             "require": {
@@ -203,9 +203,10 @@
             },
             "suggest": {
                 "eloquent/asplode": "Use the asplode error handler instead of PHPUnit's internal error handler.",
-                "eloquent/liberator": "Use liberator for circumventing PHP access modifier restrictions inside tests."
+                "eloquent/liberator": "Use liberator for circumventing PHP access modifier restrictions inside tests.",
+                "icecave/woodhouse": "Publish your code coverage information to GitHub pages."
             },
-            "time": "2013-01-18 02:42:39",
+            "time": "2013-01-26 12:24:15",
             "bin": [
                 "bin/phpunit",
                 "bin/phpunit-coverage",

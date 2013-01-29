@@ -22,8 +22,9 @@ interface FixtureReaderInterface
 
     /**
      * @param stream{readable: true} $stream
+     * @param string|null            $path
      *
      * @return ReadHandleInterface
      */
-    public function openStream($stream);
+    public function openStream($stream, $path = null);
 }
