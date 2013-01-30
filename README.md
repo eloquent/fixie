@@ -5,13 +5,18 @@
 [![Build status](https://api.travis-ci.org/eloquent/fixie.png)](http://travis-ci.org/eloquent/fixie)
 [![Test coverage](http://eloquent.github.com/fixie/coverage-report/coverage.png)](http://eloquent.github.com/fixie/coverage-report/index.html)
 
+## Installation
+
+Available as [Composer](http://getcomposer.org/) package
+[eloquent/fixie](https://packagist.org/packages/eloquent/fixie).
+
 ## What is Fixie?
 
 Fixie is a format for storing tabular data. It blends the strengths of
 [YAML](http://yaml.org/) and [CSV](http://en.wikipedia.org/wiki/Comma-separated_values)
 to produce a syntax that is well suited for both human and machine readers.
 
-The fixie syntax is actually a subset of [YAML 1.2](http://www.yaml.org/spec/1.2/spec.html),
+The Fixie syntax is actually a subset of [YAML 1.2](http://www.yaml.org/spec/1.2/spec.html),
 meaning that any given example of Fixie syntax is also perfectly valid YAML.
 Unlike free-form YAML however, all Fixie variants can be read row-by-row, which
 allows for minimal memory usage when reading large amounts of data.
@@ -20,9 +25,7 @@ allows for minimal memory usage when reading large amounts of data.
 
 ### Compact style
 
-The default style, recommended for data sets of any size. If the data set is
-very large, a more compact [variant](#output-style-variants) may be better
-suited.
+The default style, recommended for data sets of any size.
 
 ```yaml
 columns:
@@ -123,21 +126,48 @@ human readability.
 Fixie implements multiple output styles. In addition to the 'aligned'
 [output styles](#output-styles) above, there are non-aligned variants of both
 compact and expanded styles that reduce file size at the cost of reduced human
-readablity.
-
-Be aware that the default 'aligned compact' output style must buffer every row
-that is written, and only actually writes anything when the handle is closed.
-This makes it poorly suited for very large data sets as every row is retained in
-memory.
+readability.
 
 The `FixtureWriter` class takes, as its first constructor parameter, a class
 name to use when opening a file or stream for writing. The options available
 are (in the `Eloquent\Fixie\Writer` namespace):
 
-- `AlignedCompactFixtureWriteHandle` (default)
-- `AlignedExpandedFixtureWriteHandle`
-- `CompactFixtureWriteHandle`
-- `ExpandedFixtureWriteHandle`
+#### SwitchingCompactFixtureWriteHandle
+
+This variant will buffer up to a given data size (defaults to 10MB). If the data
+written is within the size limit, the output will be that produced by the
+[AlignedCompactFixtureWriteHandle](#alignedcompactfixturewritehandle). If the
+size limit is exceeded, this variant will switch to unbuffered output using the
+[CompactFixtureWriteHandle](#compactfixturewritehandle).
+
+This is the default variant used by Fixie, as it offers the best compromise
+between memory usage and human readability.
+
+#### AlignedCompactFixtureWriteHandle
+
+Writes rows in the 'compact' style, and keeps column headers and row values
+aligned with each other. This style is excellent for human readability but poor
+for large data sets as the data must be buffered in memory. Unless the maximum
+data size is known in advance, it is recommended to use the
+[SwitchingCompactFixtureWriteHandle](#switchingcompactfixturewritehandle)
+instead.
+
+#### CompactFixtureWriteHandle
+
+Writes rows in the 'compact' style, using the minimal amount of whitespace. This
+variant is excellent for any data size, but is not as good for human readability
+as other options. If human readability is not an issue, use this variant.
+
+#### AlignedExpandedFixtureWriteHandle
+
+Writes rows in the 'expanded' style, and aligns row values. A versatile variant
+produces a much more vertically elongated output. Good for both human
+readability and memory usage.
+
+#### ExpandedFixtureWriteHandle
+
+Writes rows in the 'expanded' style, but does not align row values. Only useful
+if the data should be output in a similar way to typical YAML renderers.
 
 ## Usage
 
@@ -203,6 +233,18 @@ if (null !== $row){
     // some custom logic
 }
 $handle->close();
+```
+
+### Opening streams
+
+```php
+$stream = fopen('php://temp', 'wb');
+$handle = $writer->openStream($stream);
+```
+
+```php
+$stream = fopen('data://text/plain;base64,LSBmb28NCi0gYmFy', 'rb');
+$handle = $reader->openStream($stream);
 ```
 
 ## Comparison to CSV and YAML
