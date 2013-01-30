@@ -11,8 +11,36 @@
 
 namespace Eloquent\Fixie\Reader;
 
-class FixtureReader implements FixtureReaderInterface
+use Eloquent\Fixie\Handle\HandleFactoryInterface;
+use Icecave\Isolator\Isolator;
+use Symfony\Component\Yaml\Parser;
+
+class FixtureReader implements HandleFactoryInterface
 {
+    /**
+     * @param Parser|null   $parser
+     * @param Isolator|null $isolator
+     */
+    public function __construct(
+        Parser $parser = null,
+        Isolator $isolator = null
+    ) {
+        if (null === $parser) {
+            $parser = new Parser;
+        }
+
+        $this->parser = $parser;
+        $this->isolator = Isolator::get($isolator);
+    }
+
+    /**
+     * @return Parser
+     */
+    public function parser()
+    {
+        return $this->parser;
+    }
+
     /**
      * @param string $path
      *
@@ -22,7 +50,9 @@ class FixtureReader implements FixtureReaderInterface
     {
         return new ReadHandle(
             null,
-            $path
+            $path,
+            $this->parser(),
+            $this->isolator
         );
     }
 
@@ -36,7 +66,12 @@ class FixtureReader implements FixtureReaderInterface
     {
         return new ReadHandle(
             $stream,
-            $path
+            $path,
+            $this->parser(),
+            $this->isolator
         );
     }
+
+    private $parser;
+    private $isolator;
 }

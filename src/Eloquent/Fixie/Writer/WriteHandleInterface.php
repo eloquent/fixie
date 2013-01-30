@@ -19,4 +19,9 @@ interface WriteHandleInterface extends HandleInterface
      * @param array $row
      */
     public function write(array $row);
+
+    /**
+     * @param array<array> $rows
+     */
+    public function writeAll(array $rows);
 }

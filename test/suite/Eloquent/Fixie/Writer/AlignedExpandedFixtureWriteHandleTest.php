@@ -234,6 +234,7 @@ class AlignedExpandedFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
         $expected = <<<'EOD'
 - bar: qux
   baz: doom
+
 - bar: splat
   baz: ping
 
@@ -254,6 +255,7 @@ EOD;
 -
   - qux
   - doom
+
 -
   - splat
   - ping
@@ -274,6 +276,7 @@ EOD;
         $expected = <<<'EOD'
 - bar:    qux
   bazbaz: doom
+
 - bar:    splat
   bazbaz: ping
 

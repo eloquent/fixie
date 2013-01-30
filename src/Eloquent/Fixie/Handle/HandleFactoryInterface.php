@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Fixie\Reader;
+namespace Eloquent\Fixie\Handle;
 
-interface FixtureReaderInterface
+interface HandleFactoryInterface
 {
     /**
      * @param string $path
      *
-     * @return ReadHandleInterface
+     * @return HandleInterface
      */
     public function openFile($path);
 
@@ -24,7 +24,7 @@ interface FixtureReaderInterface
      * @param stream{readable: true} $stream
      * @param string|null            $path
      *
-     * @return ReadHandleInterface
+     * @return HandleInterface
      */
     public function openStream($stream, $path = null);
 }

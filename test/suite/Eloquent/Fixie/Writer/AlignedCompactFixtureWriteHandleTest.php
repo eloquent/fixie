@@ -233,10 +233,10 @@ class AlignedCompactFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
         );
         $expected = <<<'EOD'
 columns:
-  [bar,   baz ]
+ [bar,   baz ]
 data: [
-  [qux,   doom],
-  [splat, ping],
+ [qux,   doom],
+ [splat, ping],
 ]
 
 EOD;
@@ -273,10 +273,10 @@ EOD;
         );
         $expected = <<<'EOD'
 columns:
-  [bar,   bazbaz]
+ [bar,   bazbaz]
 data: [
-  [qux,   doom  ],
-  [splat, ping  ],
+ [qux,   doom  ],
+ [splat, ping  ],
 ]
 
 EOD;
@@ -299,6 +299,23 @@ EOD;
         foreach ($rows as $row) {
             $handle->write($row);
         }
+        $handle->close();
+
+        $this->assertSame($expected, $this->_output);
+    }
+
+    /**
+     * @dataProvider writerData
+     */
+    public function testWriterWriteAll($expected, array $rows)
+    {
+        $handle = new AlignedCompactFixtureWriteHandle(
+            $this->streamFixture(),
+            null,
+            null,
+            $this->_isolator
+        );
+        $handle->writeAll($rows);
         $handle->close();
 
         $this->assertSame($expected, $this->_output);

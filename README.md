@@ -26,18 +26,18 @@ suited.
 
 ```yaml
 columns:
- [name,      symbol, number, weight,     metallic, group                ]
+ [name,      symbol, number, weight,     metallic, group                 ]
 data: [
- [Hydrogen,  H,      1,      1.00794,    false,    ~                    ],
- [Helium,    He,     2,      4.002602,   false,    Noble gas            ],
- [Lithium,   Li,     3,      6.941,      true,     Alkali metal         ],
- [Beryllium, Be,     4,      9.012182,   true,     Alkaline earth metal ],
- [Boron,     B,      5,      10.811,     true,     ~                    ],
- [Carbon,    C,      6,      12.0107,    false,    ~                    ],
- [Nitrogen,  N,      7,      14.0067,    false,    Pnictogen            ],
- [Oxygen,    O,      8,      15.9994,    false,    Chalcogen            ],
- [Fluorine,  F,      9,      18.9984032, false,    Halogen              ],
- [Neon,      Ne,     10,     20.1797,    false,    Noble gas            ],
+ [Hydrogen,  H,      1,      1.00794,    false,    null                  ],
+ [Helium,    He,     2,      4.002602,   false,    'Noble gas'           ],
+ [Lithium,   Li,     3,      6.941,      true,     'Alkali metal'        ],
+ [Beryllium, Be,     4,      9.012182,   true,     'Alkaline earth metal'],
+ [Boron,     B,      5,      10.811,     true,     null                  ],
+ [Carbon,    C,      6,      12.0107,    false,    null                  ],
+ [Nitrogen,  N,      7,      14.0067,    false,    Pnictogen             ],
+ [Oxygen,    O,      8,      15.9994,    false,    Chalcogen             ],
+ [Fluorine,  F,      9,      18.9984032, false,    Halogen               ],
+ [Neon,      Ne,     10,     20.1797,    false,    'Noble gas'           ],
 ]
 ```
 
@@ -52,42 +52,42 @@ human readability.
   number:   1
   weight:   1.00794
   metallic: false
-  group:    ~
+  group:    null
 
 - name:     Helium
   symbol:   He
   number:   2
   weight:   4.002602
   metallic: false
-  group:    Noble gas
+  group:    'Noble gas'
 
 - name:     Lithium
   symbol:   Li
   number:   3
   weight:   6.941
   metallic: true
-  group:    Alkali metal
+  group:    'Alkali metal'
 
 - name:     Beryllium
   symbol:   Be
   number:   4
   weight:   9.012182
   metallic: true
-  group:    Alkaline earth metal
+  group:    'Alkaline earth metal'
 
 - name:     Boron
   symbol:   B
   number:   5
   weight:   10.811
   metallic: true
-  group:    ~
+  group:    null
 
 - name:     Carbon
   symbol:   C
   number:   6
   weight:   12.0107
   metallic: false
-  group:    ~
+  group:    null
 
 - name:     Nitrogen
   symbol:   N
@@ -115,7 +115,7 @@ human readability.
   number:   10
   weight:   20.1797
   metallic: false
-  group:    Noble gas
+  group:    'Noble gas'
 ```
 
 ### Output style variants
@@ -125,9 +125,10 @@ Fixie implements multiple output styles. In addition to the 'aligned'
 compact and expanded styles that reduce file size at the cost of reduced human
 readablity.
 
-Be aware that the 'aligned compact' output style must buffer every row that is
-written, and only actually writes anything when the handle is closed. This makes
-it poorly suited for very large data sets as every row is retained in memory.
+Be aware that the default 'aligned compact' output style must buffer every row
+that is written, and only actually writes anything when the handle is closed.
+This makes it poorly suited for very large data sets as every row is retained in
+memory.
 
 The `FixtureWriter` class takes, as its first constructor parameter, a class
 name to use when opening a file or stream for writing. The options available

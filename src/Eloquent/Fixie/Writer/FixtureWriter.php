@@ -11,18 +11,32 @@
 
 namespace Eloquent\Fixie\Writer;
 
-class FixtureWriter implements FixtureWriterInterface
+use Eloquent\Fixie\Handle\HandleFactoryInterface;
+use Icecave\Isolator\Isolator;
+use Symfony\Component\Yaml\Inline;
+
+class FixtureWriter implements HandleFactoryInterface
 {
     /**
-     * @param string|null $handleClassName
+     * @param string|null   $handleClassName
+     * @param Inline|null   $renderer
+     * @param Isolator|null $isolator
      */
-    public function __construct($handleClassName = null)
-    {
+    public function __construct(
+        $handleClassName = null,
+        Inline $renderer = null,
+        Isolator $isolator = null
+    ) {
         if (null === $handleClassName) {
             $handleClassName = __NAMESPACE__.'\AlignedCompactFixtureWriteHandle';
         }
+        if (null === $renderer) {
+            $renderer = new Inline;
+        }
 
         $this->handleClassName = $handleClassName;
+        $this->renderer = $renderer;
+        $this->isolator = Isolator::get($isolator);
     }
 
     /**
@@ -31,6 +45,14 @@ class FixtureWriter implements FixtureWriterInterface
     public function handleClassName()
     {
         return $this->handleClassName;
+    }
+
+    /**
+     * @return Inline
+     */
+    public function renderer()
+    {
+        return $this->renderer;
     }
 
     /**
@@ -44,7 +66,9 @@ class FixtureWriter implements FixtureWriterInterface
 
         return new $className(
             null,
-            $path
+            $path,
+            $this->renderer(),
+            $this->isolator
         );
     }
 
@@ -60,9 +84,13 @@ class FixtureWriter implements FixtureWriterInterface
 
         return new $className(
             $stream,
-            $path
+            $path,
+            $this->renderer(),
+            $this->isolator
         );
     }
 
     private $handleClassName;
+    private $renderer;
+    private $isolator;
 }

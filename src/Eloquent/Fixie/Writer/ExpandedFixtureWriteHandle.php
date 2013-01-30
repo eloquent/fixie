@@ -53,11 +53,14 @@ class ExpandedFixtureWriteHandle extends AbstractWriteHandle
         }
 
         $this->writeData(sprintf(
-            "%s\n",
+            "%s%s\n",
+            $this->firstRow ? '' : "\n",
             implode("\n", $lines)
         ));
+        $this->firstRow = false;
     }
 
     private $columnNames;
     private $isMap;
+    private $firstRow = true;
 }

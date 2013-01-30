@@ -11,7 +11,10 @@
 
 namespace Eloquent\Fixie\Writer;
 
+use Eloquent\Liberator\Liberator;
+use Phake;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Yaml\Inline;
 
 class FixtureWriterTest extends PHPUnit_Framework_TestCase
 {
@@ -19,7 +22,16 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->_writer = new FixtureWriter;
+        $this->_handleClassName =
+            __NAMESPACE__.'\CompactFixtureWriteHandle'
+        ;
+        $this->_renderer = new Inline;
+        $this->_isolator = Phake::partialMock('Icecave\Isolator\Isolator');
+        $this->_writer = new FixtureWriter(
+            $this->_handleClassName,
+            $this->_renderer,
+            $this->_isolator
+        );
         $this->_streams = array();
     }
 
@@ -46,27 +58,37 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
+        $this->assertSame($this->_handleClassName, $this->_writer->handleClassName());
+        $this->assertSame($this->_renderer, $this->_writer->renderer());
+    }
+
+    public function testConstructorDefaults()
+    {
+        $this->_writer = new FixtureWriter;
+
         $this->assertSame(
             __NAMESPACE__.'\AlignedCompactFixtureWriteHandle',
             $this->_writer->handleClassName()
         );
-    }
-
-    public function testConstructorCustomHandleClass()
-    {
-        $this->_writer = new FixtureWriter('foo');
-
-        $this->assertSame('foo', $this->_writer->handleClassName());
+        $this->assertInstanceOf(
+            'Symfony\Component\Yaml\Inline',
+            $this->_writer->renderer()
+        );
     }
 
     public function testOpenFile()
     {
-        $expected = new AlignedCompactFixtureWriteHandle(
+        $expected = new CompactFixtureWriteHandle(
             null,
-            'foo'
+            'foo',
+            $this->_renderer,
+            $this->_isolator
         );
+        $actual = $this->_writer->openFile('foo');
 
-        $this->assertEquals($expected, $this->_writer->openFile('foo'));
+        $this->assertEquals($expected, $actual);
+        $this->assertSame($this->_renderer, $actual->renderer());
+        $this->assertSame($this->_isolator, Liberator::liberate($actual)->isolator);
     }
 
     public function testOpenFileCustomHandleClass()
@@ -85,12 +107,17 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
     public function testOpenStream()
     {
         $stream = $this->streamFixture();
-        $expected = new AlignedCompactFixtureWriteHandle(
+        $expected = new CompactFixtureWriteHandle(
             $stream,
-            'foo'
+            'foo',
+            $this->_renderer,
+            $this->_isolator
         );
+        $actual = $this->_writer->openStream($stream, 'foo');
 
-        $this->assertEquals($expected, $this->_writer->openStream($stream, 'foo'));
+        $this->assertEquals($expected, $actual);
+        $this->assertSame($this->_renderer, $actual->renderer());
+        $this->assertSame($this->_isolator, Liberator::liberate($actual)->isolator);
     }
 
     public function testOpenStreamCustomHandleClass()

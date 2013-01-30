@@ -71,13 +71,16 @@ class AlignedExpandedFixtureWriteHandle extends AbstractWriteHandle
         }
 
         $this->writeData(sprintf(
-            "%s\n",
+            "%s%s\n",
+            $this->firstRow ? '' : "\n",
             implode("\n", $lines)
         ));
+        $this->firstRow = false;
     }
 
     private $columnNames;
     private $columnNamesRendered;
     private $isMap;
     private $columnSize;
+    private $firstRow = true;
 }

@@ -53,6 +53,16 @@ abstract class AbstractWriteHandle extends AbstractHandle implements WriteHandle
     }
 
     /**
+     * @param array<array> $rows
+     */
+    public function writeAll(array $rows)
+    {
+        foreach ($rows as $row) {
+            $this->write($row);
+        }
+    }
+
+    /**
      * @return stream
      */
     protected function openStream()

@@ -367,10 +367,10 @@ EOD;
         $yaml = <<<'EOD'
 
 columns:
-  [  bar,   baz   ]
+ [bar,   baz ]
 data: [
-  [  qux,   doom  ],
-  [  splat, ping  ],
+ [qux,   doom],
+ [splat, ping],
 ]
 EOD;
         $expected = array(
@@ -388,6 +388,7 @@ EOD;
         $yaml = <<<'EOD'
 - bar: qux
   baz: doom
+
 - bar: splat
   baz: ping
 EOD;
@@ -441,6 +442,7 @@ EOD;
 -
   - qux
   - doom
+
 -
   - splat
   - ping

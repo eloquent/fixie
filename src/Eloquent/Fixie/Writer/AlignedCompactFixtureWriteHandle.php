@@ -64,7 +64,7 @@ class AlignedCompactFixtureWriteHandle extends AbstractWriteHandle
     {
         if ($this->isMap) {
             $this->writeData(sprintf(
-                "columns:\n  %s\n",
+                "columns:\n %s\n",
                 $this->renderRowAligned($columnSizes, $this->columnNamesRendered)
             ));
         }
@@ -80,7 +80,7 @@ class AlignedCompactFixtureWriteHandle extends AbstractWriteHandle
     {
         $this->writeData(sprintf(
             "%s%s,\n",
-            $this->isMap ? '  ' : '',
+            $this->isMap ? ' ' : '',
             $this->renderRowAligned($columnSizes, $row)
         ));
     }

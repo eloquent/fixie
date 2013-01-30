@@ -11,7 +11,10 @@
 
 namespace Eloquent\Fixie\Reader;
 
+use Eloquent\Liberator\Liberator;
+use Phake;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Yaml\Parser;
 
 class FixtureReaderTest extends PHPUnit_Framework_TestCase
 {
@@ -19,7 +22,12 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->_reader = new FixtureReader;
+        $this->_parser = new Parser;
+        $this->_isolator = Phake::partialMock('Icecave\Isolator\Isolator');
+        $this->_reader = new FixtureReader(
+            $this->_parser,
+            $this->_isolator
+        );
         $this->_streams = array();
     }
 
@@ -44,14 +52,34 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
         return $stream;
     }
 
+    public function testConstructor()
+    {
+        $this->assertSame($this->_parser, $this->_reader->parser());
+    }
+
+    public function testConstructorDefaults()
+    {
+        $this->_reader = new FixtureReader;
+
+        $this->assertInstanceOf(
+            'Symfony\Component\Yaml\Parser',
+            $this->_reader->parser()
+        );
+    }
+
     public function testOpenFile()
     {
         $expected = new ReadHandle(
             null,
-            'foo'
+            'foo',
+            $this->_parser,
+            $this->_isolator
         );
+        $actual = $this->_reader->openFile('foo');
 
-        $this->assertEquals($expected, $this->_reader->openFile('foo'));
+        $this->assertEquals($expected, $actual);
+        $this->assertSame($this->_parser, $actual->parser());
+        $this->assertSame($this->_isolator, Liberator::liberate($actual)->isolator);
     }
 
     public function testOpenStream()
@@ -59,9 +87,14 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
         $stream = $this->streamFixture();
         $expected = new ReadHandle(
             $stream,
-            'foo'
+            'foo',
+            $this->_parser,
+            $this->_isolator
         );
+        $actual = $this->_reader->openStream($stream, 'foo');
 
-        $this->assertEquals($expected, $this->_reader->openStream($stream, 'foo'));
+        $this->assertEquals($expected, $actual);
+        $this->assertSame($this->_parser, $actual->parser());
+        $this->assertSame($this->_isolator, Liberator::liberate($actual)->isolator);
     }
 }
