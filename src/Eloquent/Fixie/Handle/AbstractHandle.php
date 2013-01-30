@@ -88,6 +88,14 @@ abstract class AbstractHandle implements HandleInterface
     }
 
     /**
+     * @param boolean $isClosed
+     */
+    protected function setIsClosed($isClosed)
+    {
+        $this->isClosed = $isClosed;
+    }
+
+    /**
      * @return Isolator
      */
     protected function isolator()

@@ -67,7 +67,7 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
         $this->_writer = new FixtureWriter;
 
         $this->assertSame(
-            __NAMESPACE__.'\AlignedCompactFixtureWriteHandle',
+            __NAMESPACE__.'\SwitchingCompactFixtureWriteHandle',
             $this->_writer->handleClassName()
         );
         $this->assertInstanceOf(

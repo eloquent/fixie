@@ -28,7 +28,7 @@ class FixtureWriter implements HandleFactoryInterface
         Isolator $isolator = null
     ) {
         if (null === $handleClassName) {
-            $handleClassName = __NAMESPACE__.'\AlignedCompactFixtureWriteHandle';
+            $handleClassName = __NAMESPACE__.'\SwitchingCompactFixtureWriteHandle';
         }
         if (null === $renderer) {
             $renderer = new Inline;

@@ -134,11 +134,11 @@ are (in the `Eloquent\Fixie\Writer` namespace):
 
 #### SwitchingCompactFixtureWriteHandle
 
-This variant will buffer up to a given data size (defaults to 10MB). If the data
-written is within the size limit, the output will be that produced by the
-[AlignedCompactFixtureWriteHandle](#alignedcompactfixturewritehandle). If the
-size limit is exceeded, this variant will switch to unbuffered output using the
-[CompactFixtureWriteHandle](#compactfixturewritehandle).
+This variant will buffer up to an approximate given data size (defaults to
+10MiB). If the data written is within the size limit, the output will be that
+produced by the [AlignedCompactFixtureWriteHandle](#alignedcompactfixturewritehandle).
+If the size limit is exceeded, this variant will switch to unbuffered output
+using the [CompactFixtureWriteHandle](#compactfixturewritehandle).
 
 This is the default variant used by Fixie, as it offers the best compromise
 between memory usage and human readability.
