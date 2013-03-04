@@ -2,8 +2,8 @@
 
 *YAML-based data fixtures.*
 
-[![Build status](https://api.travis-ci.org/eloquent/fixie.png)](http://travis-ci.org/eloquent/fixie)
-[![Test coverage](http://eloquent.github.com/fixie/coverage-report/coverage.png)](http://eloquent.github.com/fixie/coverage-report/index.html)
+[![Build Status]](http://travis-ci.org/eloquent/fixie)
+[![Test Coverage]](http://eloquent-software.com/fixie/artifacts/tests/coverage/)
 
 ## Installation
 
@@ -273,3 +273,7 @@ $handle = $reader->openStream($stream);
   all supported.
 - Very human-readable when formatted correctly.
 - Good string encoding support.
+
+<!-- references -->
+[Build Status]: https://raw.github.com/eloquent/fixie/gh-pages/artifacts/images/icecave/regular/build-status.png
+[Test Coverage]: https://raw.github.com/eloquent/fixie/gh-pages/artifacts/images/icecave/regular/coverage.png
