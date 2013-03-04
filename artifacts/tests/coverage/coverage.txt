@@ -1,0 +1,38 @@
+
+
+Code Coverage Report 
+  2013-03-04 07:11:39
+
+ Summary: 
+  Classes: 100.00% (14/14)
+  Methods: 100.00% (83/83)
+  Lines:   100.00% (537/537)
+
+\Eloquent\Fixie\Handle::AbstractHandle
+  Methods:  87.50% ( 7/ 8)   Lines: 100.00% ( 28/ 28)
+\Eloquent\Fixie\Handle\Exception::ClosedHandleException
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  8/  8)
+\Eloquent\Fixie\Handle\Exception::EmptyHandleException
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  2/  2)
+\Eloquent\Fixie\Handle\Exception::ReadException
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  8/  8)
+\Eloquent\Fixie\Handle\Exception::WriteException
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  8/  8)
+\Eloquent\Fixie\Reader::FixtureReader
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 19/ 19)
+\Eloquent\Fixie\Reader::ReadHandle
+  Methods: 100.00% (25/25)   Lines: 100.00% (161/161)
+\Eloquent\Fixie\Writer::AbstractWriteHandle
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 33/ 33)
+\Eloquent\Fixie\Writer::AlignedCompactFixtureWriteHandle
+  Methods: 100.00% ( 9/ 9)   Lines: 100.00% ( 75/ 75)
+\Eloquent\Fixie\Writer::AlignedExpandedFixtureWriteHandle
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 46/ 46)
+\Eloquent\Fixie\Writer::CompactFixtureWriteHandle
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 26/ 26)
+\Eloquent\Fixie\Writer::ExpandedFixtureWriteHandle
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 31/ 31)
+\Eloquent\Fixie\Writer::FixtureWriter
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 26/ 26)
+\Eloquent\Fixie\Writer::SwitchingCompactFixtureWriteHandle
+  Methods: 100.00% (11/11)   Lines: 100.00% ( 66/ 66)
