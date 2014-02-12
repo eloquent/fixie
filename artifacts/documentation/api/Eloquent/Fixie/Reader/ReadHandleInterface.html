@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="robots" content="index, follow, all" />
+        <title>Eloquent\Fixie\Reader\ReadHandleInterface | eloquent/fixie API</title>
+                    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css">
+                            </head>
+        <body id="class">
+            <div class="header">
+        <ul>
+            <li><a href="../../../classes.html">Classes</a></li>
+                            <li><a href="../../../namespaces.html">Namespaces</a></li>
+                        <li><a href="../../../interfaces.html">Interfaces</a></li>
+            <li><a href="../../../doc-index.html">Index</a></li>
+            
+        </ul>
+
+        <div id="title">eloquent/fixie API</div>
+
+            <div class="type">Interface</div>
+    <h1><a href="../../../Eloquent/Fixie/Reader.html">Eloquent\Fixie\Reader</a>\ReadHandleInterface</h1>
+    </div>
+        <div class="content">
+                <p>interface    <strong>ReadHandleInterface</strong>        implements
+        <a href="../../../Eloquent/Fixie/Handle/HandleInterface.html"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a>, <a href="http://php.net/Iterator"><abbr title="Iterator">Iterator</abbr></a></p>
+
+            <div class="description">
+            <p>The interface implemented by readable data handles.</p>
+            <p>
+</p>
+        </div>
+    
+    
+    
+            <h2>Methods</h2>
+
+            <table>
+                    <tr>
+                <td class="type">
+                    <abbr title="Eloquent\Fixie\Handle\stream">stream</abbr>
+                </td>
+                <td class="last">
+                    <a href="#method_stream">stream</a>()
+                    <p>Get the native stream handle.</p>
+                </td>
+                <td><small>from&nbsp;<a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_stream"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type">
+                    string|null
+                </td>
+                <td class="last">
+                    <a href="#method_path">path</a>()
+                    <p>Get the related filesystem path.</p>
+                </td>
+                <td><small>from&nbsp;<a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_path"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type">
+                    boolean
+                </td>
+                <td class="last">
+                    <a href="#method_isClosed">isClosed</a>()
+                    <p>Returns true if this handle is closed.</p>
+                </td>
+                <td><small>from&nbsp;<a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_isClosed"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type">
+                    
+                </td>
+                <td class="last">
+                    <a href="#method_close">close</a>()
+                    <p>Close this handle.</p>
+                </td>
+                <td><small>from&nbsp;<a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_close"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a></small></td>
+            </tr>
+                    <tr>
+                <td class="type">
+                    array|null
+                </td>
+                <td class="last">
+                    <a href="#method_read">read</a>()
+                    <p>Read and return a single data row.</p>
+                </td>
+                <td></td>
+            </tr>
+                    <tr>
+                <td class="type">
+                    <abbr title="Eloquent\Fixie\Reader\array&lt;array&gt;">array&lt;array&gt;</abbr>
+                </td>
+                <td class="last">
+                    <a href="#method_readAll">readAll</a>()
+                    <p>Read and return all data rows.</p>
+                </td>
+                <td></td>
+            </tr>
+            </table>
+
+
+        <h2>Details</h2>
+
+                        <h3 id="method_stream">
+        <div class="location">in <a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_stream"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a> at line 29</div>
+        <code>            public            <abbr title="Eloquent\Fixie\Handle\stream">stream</abbr>
+    <strong>stream</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Get the native stream handle.</p>
+        <p>If lazy stream opening is in use, this method will cause the initial
+stream open operation to occur.</p>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table>
+        <tr>
+            <td><abbr title="Eloquent\Fixie\Handle\stream">stream</abbr></td>
+            <td>The stream handle.</td>
+        </tr>
+    </table>
+
+            
+                            <h4>Exceptions</h4>
+
+                    <table>
+                    <tr>
+                <td><abbr title="Exception\IoExceptionInterface">IoExceptionInterface</abbr></td>
+                <td>If opening the stream fails.</td>
+            </tr>
+                    <tr>
+                <td><abbr title="Exception\ClosedHandleException">ClosedHandleException</abbr></td>
+                <td>If this handle is closed.</td>
+            </tr>
+            </table>
+
+            
+                    </div>
+    </div>
+
+                <h3 id="method_path">
+        <div class="location">in <a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_path"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a> at line 36</div>
+        <code>            public            string|null
+    <strong>path</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Get the related filesystem path.</p>
+        <p>
+</p>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table>
+        <tr>
+            <td>string|null</td>
+            <td>The filesystem path, or null if the path is unknown.</td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+                <h3 id="method_isClosed">
+        <div class="location">in <a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_isClosed"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a> at line 43</div>
+        <code>            public            boolean
+    <strong>isClosed</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Returns true if this handle is closed.</p>
+        <p>
+</p>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table>
+        <tr>
+            <td>boolean</td>
+            <td>True if this handle is closed.</td>
+        </tr>
+    </table>
+
+            
+            
+                    </div>
+    </div>
+
+                <h3 id="method_close">
+        <div class="location">in <a href="../../../Eloquent/Fixie/Handle/HandleInterface.html#method_close"><abbr title="Eloquent\Fixie\Handle\HandleInterface">HandleInterface</abbr></a> at line 51</div>
+        <code>            public            
+    <strong>close</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Close this handle.</p>
+        <p>
+</p>
+        <div class="tags">
+            
+            
+                            <h4>Exceptions</h4>
+
+                    <table>
+                    <tr>
+                <td><abbr title="Exception\ReadException">ReadException</abbr></td>
+                <td>If closing the handle fails.</td>
+            </tr>
+                    <tr>
+                <td><abbr title="Exception\ClosedHandleException">ClosedHandleException</abbr></td>
+                <td>If this handle is closed.</td>
+            </tr>
+            </table>
+
+            
+                    </div>
+    </div>
+
+                <h3 id="method_read">
+        <div class="location">at line 29</div>
+        <code>            public            array|null
+    <strong>read</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Read and return a single data row.</p>
+        <p>
+</p>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table>
+        <tr>
+            <td>array|null</td>
+            <td>The data row, or null if the end of data was encountered.</td>
+        </tr>
+    </table>
+
+            
+                            <h4>Exceptions</h4>
+
+                    <table>
+                    <tr>
+                <td><abbr title="ReadException">ReadException</abbr></td>
+                <td>If data is unable to be read.</td>
+            </tr>
+            </table>
+
+            
+                    </div>
+    </div>
+
+                <h3 id="method_readAll">
+        <div class="location">at line 37</div>
+        <code>            public            <abbr title="Eloquent\Fixie\Reader\array&lt;array&gt;">array&lt;array&gt;</abbr>
+    <strong>readAll</strong>()</code>
+    </h3>
+    <div class="details">
+        <p>Read and return all data rows.</p>
+        <p>
+</p>
+        <div class="tags">
+            
+                            <h4>Return Value</h4>
+
+                    <table>
+        <tr>
+            <td><abbr title="Eloquent\Fixie\Reader\array&lt;array&gt;">array&lt;array&gt;</abbr></td>
+            <td>All data rows.</td>
+        </tr>
+    </table>
+
+            
+                            <h4>Exceptions</h4>
+
+                    <table>
+                    <tr>
+                <td><abbr title="ReadException">ReadException</abbr></td>
+                <td>If data is unable to be read.</td>
+            </tr>
+            </table>
+
+            
+                    </div>
+    </div>
+
+    
+            </div>
+            <div id="footer">
+        Generated by <a href="http://sami.sensiolabs.org/" target="_top">Sami, the API Documentation Generator</a>.
+    </div>
+    </body>
+</html>
