@@ -3,14 +3,15 @@
 /*
  * This file is part of the Fixie package.
  *
- * Copyright © 2013 Erin Millard
+ * Copyright © 2014 Erin Millard
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information, please view the LICENSE file
+ * that was distributed with this source code.
  */
 
 use Eloquent\Fixie\Reader\FixtureReader;
 use Eloquent\Fixie\Writer\FixtureWriter;
+use Icecave\Isolator\Isolator;
 
 class FunctionalTest extends PHPUnit_Framework_TestCase
 {
@@ -18,22 +19,24 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->_isolator = Phake::partialMock('Icecave\Isolator\Isolator');
-        $this->_writer = new FixtureWriter(null, null, $this->_isolator);
-        $this->_reader = new FixtureReader(null, $this->_isolator);
+        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->writer = new FixtureWriter(null, null, $this->isolator);
+        $this->reader = new FixtureReader(null, $this->isolator);
 
-        $this->_handles = array();
+        $this->handles = array();
 
-        $this->_output = '';
+        $this->output = '';
         $that = $this;
-        Phake::when($this->_isolator)
+        Phake::when($this->isolator)
             ->fwrite(Phake::anyParameters())
-            ->thenGetReturnByLambda(function ($method, array $arguments) use ($that) {
-                $that->_output .= $arguments[1];
-            })
+            ->thenGetReturnByLambda(
+                function ($method, array $arguments) use ($that) {
+                    $that->output .= $arguments[1];
+                }
+            )
         ;
 
-        $this->_sampleData = array(
+        $this->sampleData = array(
             array(
                 'name' => 'Hydrogen',
                 'symbol' => 'H',
@@ -119,7 +122,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
     protected function tearDown()
     {
-        foreach ($this->_handles as $handle) {
+        foreach ($this->handles as $handle) {
             if (!$handle->isClosed()) {
                 $handle->close();
             }
@@ -128,10 +131,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
     protected function readFilename($data)
     {
-        return sprintf(
-            'data://text/plain;base64,%s',
-            base64_encode($data)
-        );
+        return sprintf('data://text/plain;base64,%s', base64_encode($data));
     }
 
     public function testOutputStyleExamplesCompact()
@@ -153,21 +153,21 @@ data: [
 ]
 
 EOD;
-        $this->_handles[] = $readHandle = $this->_reader->openFile($this->readFilename($yaml));
-        $this->_handles[] = $writeHandle = $this->_writer->openFile('php://temp');
-        $writeHandle->writeAll($this->_sampleData);
+        $this->handles[] = $readHandle = $this->reader->openFile($this->readFilename($yaml));
+        $this->handles[] = $writeHandle = $this->writer->openFile('php://temp');
+        $writeHandle->writeAll($this->sampleData);
         $writeHandle->close();
 
-        $this->assertSame($this->_sampleData, $readHandle->readAll());
-        $this->assertSame($yaml, $this->_output);
+        $this->assertSame($this->sampleData, $readHandle->readAll());
+        $this->assertSame($yaml, $this->output);
     }
 
     public function testOutputStyleExamplesExpanded()
     {
-        $this->_writer = new FixtureWriter(
+        $this->writer = new FixtureWriter(
             'Eloquent\Fixie\Writer\AlignedExpandedFixtureWriteHandle',
             null,
-            $this->_isolator
+            $this->isolator
         );
         $yaml = <<<'EOD'
 - name:     Hydrogen
@@ -241,12 +241,12 @@ EOD;
   group:    'Noble gas'
 
 EOD;
-        $this->_handles[] = $readHandle = $this->_reader->openFile($this->readFilename($yaml));
-        $this->_handles[] = $writeHandle = $this->_writer->openFile('php://temp');
-        $writeHandle->writeAll($this->_sampleData);
+        $this->handles[] = $readHandle = $this->reader->openFile($this->readFilename($yaml));
+        $this->handles[] = $writeHandle = $this->writer->openFile('php://temp');
+        $writeHandle->writeAll($this->sampleData);
         $writeHandle->close();
 
-        $this->assertSame($this->_sampleData, $readHandle->readAll());
-        $this->assertSame($yaml, $this->_output);
+        $this->assertSame($this->sampleData, $readHandle->readAll());
+        $this->assertSame($yaml, $this->output);
     }
 }

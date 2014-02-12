@@ -2,24 +2,25 @@
 
 *YAML-based data fixtures.*
 
-[![Build Status]](http://travis-ci.org/eloquent/fixie)
-[![Test Coverage]](http://eloquent-software.com/fixie/artifacts/tests/coverage/)
+[![The most recent stable version is 0.1.0][version-image]][Semantic versioning]
+[![Current build status image][build-image]][Current build status]
+[![Current coverage status image][coverage-image]][Current coverage status]
 
-## Installation
+## Installation and documentation
 
-Available as [Composer](http://getcomposer.org/) package
-[eloquent/fixie](https://packagist.org/packages/eloquent/fixie).
+- Available as [Composer] package [eloquent/dumpling].
+- [API documentation] available.
 
 ## What is Fixie?
 
-Fixie is a format for storing tabular data. It blends the strengths of
-[YAML](http://yaml.org/) and [CSV](http://en.wikipedia.org/wiki/Comma-separated_values)
-to produce a syntax that is well suited for both human and machine readers.
+Fixie is a format for storing tabular data. It blends the strengths of [YAML]
+and [CSV] to produce a syntax that is well suited for both human and machine
+readers.
 
-The Fixie syntax is actually a subset of [YAML 1.2](http://www.yaml.org/spec/1.2/spec.html),
-meaning that any given example of Fixie syntax is also perfectly valid YAML.
-Unlike free-form YAML however, all Fixie variants can be read row-by-row, which
-allows for minimal memory usage when reading large amounts of data.
+The Fixie syntax is actually a subset of [YAML 1.2], meaning that any given
+example of Fixie syntax is also perfectly valid YAML. Unlike free-form YAML
+however, all Fixie variants can be read row-by-row, which allows for minimal
+memory usage when reading large amounts of data.
 
 ## Output styles
 
@@ -161,7 +162,7 @@ as other options. If human readability is not an issue, use this variant.
 #### AlignedExpandedFixtureWriteHandle
 
 Writes rows in the 'expanded' style, and aligns row values. A versatile variant
-produces a much more vertically elongated output. Good for both human
+that produces a much more vertically elongated output. Good for both human
 readability and memory usage.
 
 #### ExpandedFixtureWriteHandle
@@ -274,6 +275,18 @@ $handle = $reader->openStream($stream);
 - Very human-readable when formatted correctly.
 - Good string encoding support.
 
-<!-- references -->
-[Build Status]: https://raw.github.com/eloquent/fixie/gh-pages/artifacts/images/icecave/regular/build-status.png
-[Test Coverage]: https://raw.github.com/eloquent/fixie/gh-pages/artifacts/images/icecave/regular/coverage.png
+<!-- References -->
+
+[CSV]: http://en.wikipedia.org/wiki/Comma-separated_values
+[YAML 1.2]: http://www.yaml.org/spec/1.2/spec.html
+[YAML]: http://yaml.org/
+
+[API documentation]: http://lqnt.co/dumpling/artifacts/documentation/api/
+[Composer]: http://getcomposer.org/
+[build-image]: http://img.shields.io/travis/eloquent/dumpling/develop.svg "Current build status for the develop branch"
+[Current build status]: https://travis-ci.org/eloquent/dumpling
+[coverage-image]: http://img.shields.io/coveralls/eloquent/dumpling/develop.svg "Current test coverage for the develop branch"
+[Current coverage status]: https://coveralls.io/r/eloquent/dumpling
+[eloquent/dumpling]: https://packagist.org/packages/eloquent/dumpling
+[Semantic versioning]: http://semver.org/
+[version-image]: http://img.shields.io/:semver-0.1.0-yellow.svg "This project uses semantic versioning"
