@@ -1,7 +1,7 @@
 {
     "name": "eloquent/fixie",
     "description": "YAML-based data fixtures.",
-    "keywords": ["yaml","data","fixture","csv","file"],
+    "keywords": ["yaml", "data", "fixture", "csv", "file"],
     "homepage": "https://github.com/eloquent/fixie",
     "license": "MIT",
     "authors": [
@@ -12,17 +12,17 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.3",
         "icecave/isolator": "~2",
         "symfony/yaml": "~2"
     },
     "require-dev": {
-        "eloquent/liberator": "~1",
-        "icecave/archer": "~0.2"
+        "eloquent/liberator": "~2",
+        "icecave/archer": "~1"
     },
     "autoload": {
-        "psr-0": {
-            "Eloquent\\Fixie": "src"
+        "psr-4": {
+            "Eloquent\\Fixie\\": "src"
         }
     }
 }
