@@ -32,7 +32,7 @@ class FixtureReader implements HandleFactoryInterface
         Isolator $isolator = null
     ) {
         if (null === $parser) {
-            $parser = new Parser;
+            $parser = new Parser();
         }
 
         $this->parser = $parser;

@@ -38,7 +38,7 @@ class FixtureWriter implements HandleFactoryInterface
                 'Eloquent\Fixie\Writer\SwitchingCompactFixtureWriteHandle';
         }
         if (null === $renderer) {
-            $renderer = new Inline;
+            $renderer = new Inline();
         }
 
         $this->handleClassName = $handleClassName;

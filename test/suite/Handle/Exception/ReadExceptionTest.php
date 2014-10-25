@@ -18,7 +18,7 @@ class ReadExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $cause = new Exception;
+        $cause = new Exception();
         $exception = new ReadException('foo', $cause);
 
         $this->assertSame("Unable to read data from file 'foo'.", $exception->getMessage());
@@ -29,7 +29,7 @@ class ReadExceptionTest extends PHPUnit_Framework_TestCase
 
     public function testExceptionDefaults()
     {
-        $exception = new ReadException;
+        $exception = new ReadException();
 
         $this->assertSame('Unable to read data from stream.', $exception->getMessage());
         $this->assertNull($exception->path());

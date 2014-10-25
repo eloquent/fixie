@@ -40,7 +40,7 @@ abstract class AbstractWriteHandle extends AbstractHandle implements WriteHandle
         parent::__construct($stream, $path, $isolator);
 
         if (null === $renderer) {
-            $renderer = new Inline;
+            $renderer = new Inline();
         }
 
         $this->renderer = $renderer;

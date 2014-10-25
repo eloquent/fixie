@@ -11,7 +11,6 @@
 
 namespace Eloquent\Fixie\Writer;
 
-use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
 use Phake;
 
@@ -27,18 +26,16 @@ class AlignedExpandedFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->renderer = Phake::partialMock('Symfony\Component\Yaml\Inline');
-        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->isolator = Phake::partialMock('Icecave\Isolator\Isolator');
         $this->streams = array();
-        $this->output = '';
 
-        $that = $this;
-        Phake::when($this->isolator)
-            ->fwrite(Phake::anyParameters())
-            ->thenGetReturnByLambda(
-                function ($method, array $arguments) use ($that) {
-                    $that->output .= $arguments[1];
-                }
-            );
+        $this->output = '';
+        $self = $this;
+        Phake::when($this->isolator)->fwrite(Phake::anyParameters())->thenGetReturnByLambda(
+            function ($h, $data) use ($self) {
+                $self->output .= $data;
+            }
+        );
     }
 
     protected function tearDown()
@@ -81,7 +78,7 @@ class AlignedExpandedFixtureWriteHandleTest extends PHPUnit_Framework_TestCase
     public function testConstructorFailureEmpty()
     {
         $this->setExpectedException('Eloquent\Fixie\Handle\Exception\EmptyHandleException');
-        new AlignedExpandedFixtureWriteHandle;
+        new AlignedExpandedFixtureWriteHandle();
     }
 
     public function testStreamFailureClosed()

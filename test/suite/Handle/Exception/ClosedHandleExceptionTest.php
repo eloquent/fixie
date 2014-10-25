@@ -18,7 +18,7 @@ class ClosedHandleExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $cause = new Exception;
+        $cause = new Exception();
         $exception = new ClosedHandleException('foo', $cause);
 
         $this->assertSame("Handle to 'foo' already closed.", $exception->getMessage());
@@ -29,7 +29,7 @@ class ClosedHandleExceptionTest extends PHPUnit_Framework_TestCase
 
     public function testExceptionDefaults()
     {
-        $exception = new ClosedHandleException;
+        $exception = new ClosedHandleException();
 
         $this->assertSame('Handle already closed.', $exception->getMessage());
         $this->assertNull($exception->path());

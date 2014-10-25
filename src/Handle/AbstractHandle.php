@@ -32,7 +32,7 @@ abstract class AbstractHandle implements HandleInterface
         Isolator $isolator = null
     ) {
         if (null === $stream && null === $path) {
-            throw new Exception\EmptyHandleException;
+            throw new Exception\EmptyHandleException();
         }
 
         $this->stream = $stream;

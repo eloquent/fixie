@@ -11,7 +11,6 @@
 
 namespace Eloquent\Fixie\Reader;
 
-use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
 use Phake;
 
@@ -26,7 +25,7 @@ class ReadHandleTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->parser = Phake::partialMock('Symfony\Component\Yaml\Parser');
-        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->isolator = Phake::partialMock('Icecave\Isolator\Isolator');
         $this->streams = array();
     }
 
@@ -70,7 +69,7 @@ class ReadHandleTest extends PHPUnit_Framework_TestCase
     public function testConstructorFailureEmpty()
     {
         $this->setExpectedException('Eloquent\Fixie\Handle\Exception\EmptyHandleException');
-        new ReadHandle;
+        new ReadHandle();
     }
 
     public function testStreamFailureClosed()

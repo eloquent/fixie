@@ -12,7 +12,6 @@
 namespace Eloquent\Fixie\Reader;
 
 use Eloquent\Liberator\Liberator;
-use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
 use Phake;
 use Symfony\Component\Yaml\Parser;
@@ -23,8 +22,8 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->parser = new Parser;
-        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->parser = new Parser();
+        $this->isolator = Phake::partialMock('Icecave\Isolator\Isolator');
         $this->reader = new FixtureReader($this->parser, $this->isolator);
 
         $this->streams = array();
@@ -55,7 +54,7 @@ class FixtureReaderTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->reader = new FixtureReader;
+        $this->reader = new FixtureReader();
 
         $this->assertInstanceOf('Symfony\Component\Yaml\Parser', $this->reader->parser());
     }

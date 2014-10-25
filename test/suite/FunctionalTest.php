@@ -11,7 +11,6 @@
 
 use Eloquent\Fixie\Reader\FixtureReader;
 use Eloquent\Fixie\Writer\FixtureWriter;
-use Icecave\Isolator\Isolator;
 
 class FunctionalTest extends PHPUnit_Framework_TestCase
 {
@@ -19,22 +18,19 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->isolator = Phake::partialMock('Icecave\Isolator\Isolator');
         $this->writer = new FixtureWriter(null, null, $this->isolator);
         $this->reader = new FixtureReader(null, $this->isolator);
 
         $this->handles = array();
 
         $this->output = '';
-        $that = $this;
-        Phake::when($this->isolator)
-            ->fwrite(Phake::anyParameters())
-            ->thenGetReturnByLambda(
-                function ($method, array $arguments) use ($that) {
-                    $that->output .= $arguments[1];
-                }
-            )
-        ;
+        $self = $this;
+        Phake::when($this->isolator)->fwrite(Phake::anyParameters())->thenGetReturnByLambda(
+            function ($h, $data) use ($self) {
+                $self->output .= $data;
+            }
+        );
 
         $this->sampleData = array(
             array(

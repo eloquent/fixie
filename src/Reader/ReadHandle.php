@@ -41,7 +41,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
         parent::__construct($stream, $path, $isolator);
 
         if (null === $parser) {
-            $parser = new Parser;
+            $parser = new Parser();
         }
 
         $this->parser = $parser;

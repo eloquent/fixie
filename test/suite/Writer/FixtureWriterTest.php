@@ -12,7 +12,6 @@
 namespace Eloquent\Fixie\Writer;
 
 use Eloquent\Liberator\Liberator;
-use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
 use Phake;
 use Symfony\Component\Yaml\Inline;
@@ -24,8 +23,8 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->handleClassName = 'Eloquent\Fixie\Writer\CompactFixtureWriteHandle';
-        $this->renderer = new Inline;
-        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->renderer = new Inline();
+        $this->isolator = Phake::partialMock('Icecave\Isolator\Isolator');
         $this->writer = new FixtureWriter($this->handleClassName, $this->renderer, $this->isolator);
 
         $this->streams = array();
@@ -57,7 +56,7 @@ class FixtureWriterTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->writer = new FixtureWriter;
+        $this->writer = new FixtureWriter();
 
         $this->assertSame('Eloquent\Fixie\Writer\SwitchingCompactFixtureWriteHandle', $this->writer->handleClassName());
         $this->assertInstanceOf('Symfony\Component\Yaml\Inline', $this->writer->renderer());

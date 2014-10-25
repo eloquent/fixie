@@ -18,7 +18,7 @@ class WriteExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $cause = new Exception;
+        $cause = new Exception();
         $exception = new WriteException('foo', $cause);
 
         $this->assertSame("Unable to write data to file 'foo'.", $exception->getMessage());
@@ -29,7 +29,7 @@ class WriteExceptionTest extends PHPUnit_Framework_TestCase
 
     public function testExceptionDefaults()
     {
-        $exception = new WriteException;
+        $exception = new WriteException();
 
         $this->assertSame('Unable to write data to stream.', $exception->getMessage());
         $this->assertNull($exception->path());

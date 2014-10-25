@@ -18,7 +18,7 @@ class EmptyHandleExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $cause = new Exception;
+        $cause = new Exception();
         $exception = new EmptyHandleException($cause);
 
         $this->assertSame("Stream and/or path must be provided.", $exception->getMessage());
