@@ -48,6 +48,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
         $this->rewindOffset = 0;
         $this->isExhausted = false;
         $this->isExpanded = false;
+        $this->sequence = -1;
     }
 
     /**
@@ -74,9 +75,10 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
         }
 
         $this->current = null;
-        $this->index = null;
+        $this->key = null;
         $this->isExhausted = false;
         $this->currentLine = null;
+        $this->sequence = -1;
 
         if ($this->isExpanded) {
             $this->readLine();
@@ -84,7 +86,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     }
 
     /**
-     * Returns true if the current row index is valid.
+     * Returns true if the current row key is valid.
      *
      * @return boolean       True if the position is valid.
      * @throws ReadException If data is unable to be read.
@@ -93,7 +95,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     {
         $this->populateCurrent();
 
-        return null !== $this->index;
+        return null !== $this->key;
     }
 
     /**
@@ -110,16 +112,16 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     }
 
     /**
-     * Get the current row index.
+     * Get the current row key.
      *
-     * @return integer|null  The current row index, or null if there is no current row.
-     * @throws ReadException If data is unable to be read.
+     * @return integer|string|null The current row key, or null if there is no current row.
+     * @throws ReadException       If data is unable to be read.
      */
     public function key()
     {
         $this->populateCurrent();
 
-        return $this->index;
+        return $this->key;
     }
 
     /**
@@ -133,15 +135,21 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     /**
      * Read and return a single data row.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array>|null The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     public function read()
     {
-        $row = $this->current();
+        $this->populateCurrent();
+        $key = $this->key;
+        $current = $this->current;
         $this->next();
 
-        return $row;
+        if (null === $current) {
+            return null;
+        }
+
+        return array($key, $current);
     }
 
     /**
@@ -174,7 +182,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
 
     /**
      * Read and parse the next data row, storing the results as the 'current'
-     * row and row index.
+     * row and row key.
      *
      * @throws ReadException If data is unable to be read.
      */
@@ -184,23 +192,21 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
             return;
         }
 
-        $this->current = $this->parseRow();
+        list($this->key, $this->current) = $this->parseRow();
 
         if (null === $this->current) {
             $this->isExhausted = true;
-            $this->index = null;
-        } elseif (null === $this->index) {
-            $this->index = 0;
-        } else {
-            $this->index ++;
+            $this->key = null;
+        } elseif (null === $this->key) {
+            $this->key = ++$this->sequence;
         }
     }
 
     /**
      * Parse and return the next data row.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array|null> The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     protected function parseRow()
     {
@@ -214,14 +220,14 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     /**
      * Parse and return the first data row.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array|null> The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     protected function parseFirstRow()
     {
         $line = $this->readNonEmptyLine();
         if (null === $line) {
-            return null;
+            return $line;
         }
 
         $this->rewindOffset = $this->streamPosition() - strlen($line);
@@ -234,7 +240,8 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
                 $line = $this->readNonEmptyLine();
             } while (
                 null !== $line &&
-                "data: [\n" !== $line
+                "data: [\n" !== $line &&
+                "data: {\n" !== $line
             );
 
             $this->columnNames = $this->parseColumnNamesHeader(implode($lines));
@@ -245,25 +252,31 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
         } elseif ("-\n" === $line || '- ' === substr($line, 0, 2)) {
             $this->isExpanded = true;
             $row = $this->parseExpandedRowYaml($this->readExpandedRowLines());
-            $this->columnNames = $this->expectedRowKeys = array_keys($row);
-        } elseif ('data: [' === trim($line)) {
-            $this->isExpanded = false;
-            $this->rewindOffset = $this->streamPosition();
-            $line = $this->readNonEmptyLine();
-            if (null === $line) {
+            $this->columnNames = $this->expectedRowKeys = array_keys($row[1]);
+        } else {
+            $trimmedLine = trim($line);
+
+            if ('data: [' === $trimmedLine || 'data: {' === $trimmedLine) {
+                $this->isExpanded = false;
+                $this->rewindOffset = $this->streamPosition();
+                $line = $this->readNonEmptyLine();
+                if (null === $line) {
+                    throw new ReadException($this->path());
+                }
+
+                $trimmedLine = trim($line);
+
+                if (']' === $trimmedLine || '}' === $trimmedLine) {
+                    $row = null;
+                    $this->columnNames = $this->expectedRowKeys = array();
+                } else {
+                    $row = $this->parseCompactRowYaml($line);
+                    $this->columnNames = array_keys($row);
+                    $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
+                }
+            } else {
                 throw new ReadException($this->path());
             }
-
-            if (']' === trim($line)) {
-                $row = null;
-                $this->columnNames = $this->expectedRowKeys = array();
-            } else {
-                $row = $this->parseCompactRowYaml($line);
-                $this->columnNames = array_keys($row);
-                $this->expectedRowKeys = range(0, count($this->columnNames) - 1);
-            }
-        } else {
-            throw new ReadException($this->path());
         }
 
         return $row;
@@ -272,8 +285,8 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     /**
      * Parse and return a subsequent data row.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array|null> The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     protected function parseSubsequentRow()
     {
@@ -287,8 +300,8 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     /**
      * Parse and return a subsequent data row in 'compact' form.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array|null> The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     protected function parseSubsequentCompactRow()
     {
@@ -296,37 +309,40 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
         if (null === $line) {
             throw new ReadException($this->path());
         }
-        if (']' === trim($line)) {
-            return null;
+
+        $trimmedLine = trim($line);
+
+        if (']' === $trimmedLine || '}' === $trimmedLine) {
+            return array(null, null);
         }
 
-        $row = $this->parseCompactRowYaml($line);
+        list($key, $row) = $this->parseCompactRowYaml($line);
         if (array_keys($row) !== $this->expectedRowKeys) {
             throw new ReadException($this->path());
         }
 
-        return array_combine($this->columnNames, $row);
+        return array($key, array_combine($this->columnNames, $row));
     }
 
     /**
      * Parse and return a subsequent data row in 'expanded' form.
      *
-     * @return array|null    The data row, or null if the end of data was encountered.
-     * @throws ReadException If data is unable to be read.
+     * @return tuple<mixed,array|null> The data key and row, or null if the end of data was encountered.
+     * @throws ReadException           If data is unable to be read.
      */
     protected function parseSubsequentExpandedRow()
     {
         $data = $this->readExpandedRowLines();
         if (null === $data) {
-            return null;
+            return array(null, null);
         }
 
-        $row = $this->parseExpandedRowYaml($data);
+        list($key, $row) = $this->parseExpandedRowYaml($data);
         if (array_keys($row) !== $this->expectedRowKeys) {
             throw new ReadException($this->path());
         }
 
-        return $row;
+        return array($key, $row);
     }
 
     /**
@@ -343,7 +359,17 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
             throw new ReadException($this->path());
         }
 
-        return $this->parseArrayYaml(substr($yaml, 0, -2));
+        $data = $this->parseArrayYaml(substr($yaml, 0, -2));
+
+        if (1 === count($data)) {
+            foreach ($data as $key => $subData) {}
+
+            if (is_string($key) && is_array($subData)) {
+                return array($key, $subData);
+            }
+        }
+
+        return array(null, $data);
     }
 
     /**
@@ -357,11 +383,20 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     protected function parseExpandedRowYaml($yaml)
     {
         $data = $this->parseArrayYaml($yaml);
+
         if (!is_array($data[0])) {
             throw new ReadException($this->path());
         }
 
-        return $data[0];
+        if (1 === count($data[0])) {
+            foreach ($data[0] as $key => $subData) {}
+
+            if (is_string($key) && is_array($subData)) {
+                return array($key, $subData);
+            }
+        }
+
+        return array(null, $data[0]);
     }
 
     /**
@@ -510,7 +545,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     private $parser;
 
     private $current;
-    private $index;
+    private $key;
     private $rewindOffset;
     private $currentLine;
     private $isExhausted;
@@ -518,4 +553,5 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     private $isExpanded;
     private $columnNames;
     private $expectedRowKeys;
+    private $sequence;
 }

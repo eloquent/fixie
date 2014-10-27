@@ -209,6 +209,25 @@ EOD;
         $data['Compact with column names, single row'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
+columns: [bar, baz]
+data: {
+a: [qux, doom],
+b: [splat, ping],
+}
+EOD;
+        $expected = array(
+            'a' => array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+            'b' => array(
+                'bar' => 'splat',
+                'baz' => 'ping',
+            ),
+        );
+        $data['Compact with column names and row labels'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
 data: [
 [qux, doom],
 [splat, ping],
@@ -225,6 +244,24 @@ EOD;
             ),
         );
         $data['Compact without column names'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
+data: {
+a: [qux, doom],
+b: [splat, ping],
+}
+EOD;
+        $expected = array(
+            'a' => array(
+                'qux',
+                'doom',
+            ),
+            'b' => array(
+                'splat',
+                'ping',
+            ),
+        );
+        $data['Compact without column names with row labels'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
 
@@ -348,6 +385,27 @@ EOD;
         $data['Expanded single row'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
+- a:
+    bar: qux
+    baz: doom
+
+- b:
+    bar: splat
+    baz: ping
+EOD;
+        $expected = array(
+            'a' => array(
+                'bar' => 'qux',
+                'baz' => 'doom',
+            ),
+            'b' => array(
+                'bar' => 'splat',
+                'baz' => 'ping',
+            ),
+        );
+        $data['Expanded with row labels'] = array($expected, $yaml);
+
+        $yaml = <<<'EOD'
 
 - bar: qux
 
@@ -420,7 +478,7 @@ EOD;
         $handle = new ReadHandle($this->streamFixture($yaml), 'foo', $this->parser, $this->isolator);
         $actual = array();
         while (null !== ($row = $handle->read())) {
-            $actual[] = $row;
+            $actual[$row[0]] = $row[1];
         }
 
         $this->assertSame($expected, $actual);
