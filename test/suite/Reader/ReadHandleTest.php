@@ -209,11 +209,10 @@ EOD;
         $data['Compact with column names, single row'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
-columns: [bar, baz]
-data: {
-a: [qux, doom],
-b: [splat, ping],
-}
+columns: [bar,   baz]
+data:
+ a:      [qux,   doom]
+ b:      [splat, ping]
 EOD;
         $expected = array(
             'a' => array(
@@ -225,7 +224,7 @@ EOD;
                 'baz' => 'ping',
             ),
         );
-        $data['Compact with column names and row labels'] = array($expected, $yaml);
+        $data['Compact with column names and row labels aligned'] = array($expected, $yaml);
 
         $yaml = <<<'EOD'
 data: [
@@ -537,21 +536,9 @@ EOD;
         $data['Invalid fixie data'] = array($yaml);
 
         $yaml = <<<'EOD'
-columns: []
-EOD;
-        $data['Compact with columns but no data'] = array($yaml);
-
-        $yaml = <<<'EOD'
 data: [
 EOD;
         $data['Compact with no columns and unclosed empty data'] = array($yaml);
-
-        $yaml = <<<'EOD'
-columns: [bar, baz]
-data: [
-[qux, doom],
-EOD;
-        $data['Compact with columns and unclosed partial data'] = array($yaml);
 
         $yaml = <<<'EOD'
 columns: [bar, baz]

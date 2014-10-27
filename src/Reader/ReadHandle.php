@@ -232,7 +232,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
 
         $this->rewindOffset = $this->streamPosition() - strlen($line);
 
-        if ('columns:' === substr($line, 0, 8)) {
+        if ('columns:' === substr(trim($line), 0, 8)) {
             $this->isExpanded = false;
 
             do {
@@ -240,8 +240,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
                 $line = $this->readNonEmptyLine();
             } while (
                 null !== $line &&
-                "data: [\n" !== $line &&
-                "data: {\n" !== $line
+                'data:' !== substr(trim($line), 0, 5)
             );
 
             $this->columnNames = $this->parseColumnNamesHeader(implode($lines));
@@ -254,9 +253,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
             $row = $this->parseExpandedRowYaml($this->readExpandedRowLines());
             $this->columnNames = $this->expectedRowKeys = array_keys($row[1]);
         } else {
-            $trimmedLine = trim($line);
-
-            if ('data: [' === $trimmedLine || 'data: {' === $trimmedLine) {
+            if ('data:' === substr(trim($line), 0, 5)) {
                 $this->isExpanded = false;
                 $this->rewindOffset = $this->streamPosition();
                 $line = $this->readNonEmptyLine();
@@ -307,7 +304,7 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
     {
         $line = $this->readNonEmptyLine();
         if (null === $line) {
-            throw new ReadException($this->path());
+            return array(null, null);
         }
 
         $trimmedLine = trim($line);
@@ -355,21 +352,18 @@ class ReadHandle extends AbstractHandle implements ReadHandleInterface
      */
     protected function parseCompactRowYaml($yaml)
     {
-        if (",\n" !== substr($yaml, -2)) {
-            throw new ReadException($this->path());
+        $yaml = rtrim($yaml, ",\n");
+
+        if (preg_match('/^([^[]+):(.*)$/', $yaml, $matches)) {
+            $key = $this->parseYaml($matches[1]);
+            $yaml = $matches[2];
+        } else {
+            $key = null;
         }
 
-        $data = $this->parseArrayYaml(substr($yaml, 0, -2));
+        $data = $this->parseArrayYaml($yaml);
 
-        if (1 === count($data)) {
-            foreach ($data as $key => $subData) {}
-
-            if (is_string($key) && is_array($subData)) {
-                return array($key, $subData);
-            }
-        }
-
-        return array(null, $data);
+        return array($key, $data);
     }
 
     /**
